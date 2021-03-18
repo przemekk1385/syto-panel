@@ -2,7 +2,58 @@
   <v-container>
     <v-row>
       <v-col>
-        <h1 class="text-h3">Godziny stacjonarne</h1>
+        <h1 class="text-h3">Dni robocze</h1>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-sheet>
+          <v-toolbar dense flat>
+            <v-spacer></v-spacer>
+            <v-btn icon class="mr-2" @click="$refs.calendar.prev()">
+              <v-icon>mdi-chevron-left</v-icon>
+            </v-btn>
+            <v-btn icon class="ml-2" @click="$refs.calendar.next()">
+              <v-icon>mdi-chevron-right</v-icon>
+            </v-btn>
+          </v-toolbar>
+        </v-sheet>
+        <v-sheet>
+          <v-calendar
+            ref="calendar"
+            v-model="value"
+            color="primary"
+            locale="pl"
+            :now="today"
+            show-week
+            :value="today"
+            :weekdays="[1, 2, 3, 4, 5, 6, 0]"
+            @click:date="fillSlotForm"
+          >
+            <template v-slot:day="{ date, past }">
+              <v-container v-if="slots[date]" class="mt-1">
+                <v-toolbar dense flat>
+                  <v-badge
+                    v-if="slots[date].stationaryWorkersLimit"
+                    bottom
+                    :color="!past ? 'primary' : 'secondary'"
+                    :content="getStationaryWorkersLimit(date)"
+                    overlap
+                  >
+                    <v-icon :disabled="past">mdi-account-hard-hat</v-icon>
+                  </v-badge>
+                  <v-spacer></v-spacer>
+                  <v-icon
+                    v-if="slots[date].isOpenForCottageWorkers"
+                    :color="!past ? 'primary' : 'secondary'"
+                    :disabled="past"
+                    >mdi-home-city-outline</v-icon
+                  ></v-toolbar
+                >
+              </v-container>
+            </template>
+          </v-calendar>
+        </v-sheet>
       </v-col>
     </v-row>
     <v-row>
@@ -85,58 +136,6 @@
             </v-card>
           </v-form>
         </v-dialog>
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col>
-        <v-sheet>
-          <v-toolbar flat>
-            <v-spacer></v-spacer>
-            <v-btn icon class="mr-2" @click="$refs.calendar.prev()">
-              <v-icon>mdi-chevron-left</v-icon>
-            </v-btn>
-            <v-btn icon class="ml-2" @click="$refs.calendar.next()">
-              <v-icon>mdi-chevron-right</v-icon>
-            </v-btn>
-          </v-toolbar>
-        </v-sheet>
-        <v-sheet>
-          <v-calendar
-            ref="calendar"
-            v-model="value"
-            color="primary"
-            locale="pl"
-            :now="today"
-            show-week
-            :value="today"
-            :weekdays="[1, 2, 3, 4, 5, 6, 0]"
-            @click:date="fillSlotForm"
-          >
-            <template v-slot:day="{ date, past }">
-              <v-container v-if="slots[date]" class="mt-1">
-                <v-toolbar dense flat>
-                  <v-badge
-                    v-if="slots[date].stationaryWorkersLimit"
-                    bottom
-                    :color="!past ? 'primary' : 'secondary'"
-                    :content="getStationaryWorkersLimit(date)"
-                    overlap
-                  >
-                    <v-icon :disabled="past">mdi-account-hard-hat</v-icon>
-                  </v-badge>
-                  <v-spacer></v-spacer>
-                  <v-icon
-                    v-if="slots[date].isOpenForCottageWorkers"
-                    :color="!past ? 'primary' : 'secondary'"
-                    :disabled="past"
-                    >mdi-home-city-outline</v-icon
-                  ></v-toolbar
-                >
-              </v-container>
-            </template>
-          </v-calendar>
-        </v-sheet>
       </v-col>
     </v-row>
   </v-container>
