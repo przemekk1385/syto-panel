@@ -15,6 +15,10 @@
             Przegląd
           </v-btn>
 
+          <v-btn exact text :to="{ name: 'slots' }">
+            Kalendarz
+          </v-btn>
+
           <v-btn exact text :to="{ name: 'hours' }">
             Godziny
           </v-btn>
