@@ -2,174 +2,196 @@
   <v-container>
     <v-row>
       <v-col>
-        <h1 class="text-h3">Tydzień {{ this.currentWeekNumber }}</h1>
-        <p class="mt-3 text-body-1">
-          <v-icon aria-label="Total" role="img">mdi-sigma</v-icon>
-          <v-icon aria-label="Stationary hours" role="img">mdi-factory</v-icon>
-          {{ totalStationaryHours }}
-          <v-icon aria-label="Total" role="img">mdi-sigma</v-icon>
-          <v-icon aria-label="Cottage hours" role="img"
-            >mdi-home-city-outline</v-icon
-          >
-          {{ totalCottageHours }}
-        </p>
+        <h1 class="text-h3">Przegląd</h1>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <v-sheet>
-          <v-calendar
-            color="primary"
-            locale="pl"
-            :now="today"
-            show-week
-            :value="today"
-            :weekdays="[1, 2, 3, 4, 5, 6, 0]"
+        <v-data-table
+          locale="pl-PL"
+          class="elevation-1"
+          :expanded.sync="expanded"
+          :headers="headers"
+          :footer-props="footerProps"
+          :items="items"
+          item-key="date"
+          pagination.sync="pagination"
+          show-expand
+        >
+          <template
+            v-slot:[`item.totalWorkers`]="{
+              item: { stationaryWorkers, cottageWorkers }
+            }"
           >
-            <template v-slot:day="{ date, past }">
-              <v-container v-if="isCurrentWeekday(date)" class="mt-1" fluid>
-                <v-row dense>
-                  <v-col lg="6" md="12">
-                    <v-badge
-                      bottom
-                      :color="!past ? 'primary' : 'secondary'"
-                      :content="getStationaryHours(date) || '0'"
-                      overlap
-                    >
-                      <v-icon large>mdi-factory</v-icon>
-                    </v-badge>
-                  </v-col>
-                  <v-col lg="6" md="12">
-                    <v-badge
-                      bottom
-                      :color="!past ? 'primary' : 'secondary'"
-                      :content="getCottageHours(date) || '0'"
-                      overlap
-                    >
-                      <v-icon large>mdi-home-city-outline</v-icon>
-                    </v-badge>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </template>
-          </v-calendar>
-        </v-sheet>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <p class="mt-3 text-body-2">
-          <v-icon aria-label="Stationary hours" role="img" small
-            >mdi-factory</v-icon
+            {{ stationaryWorkers }} / {{ cottageWorkers }} /
+            <v-tooltip left>
+              <template v-slot:activator="{ on, attrs }">
+                <v-avatar color="primary" size="32" v-bind="attrs" v-on="on">
+                  <span class="white--text">{{
+                    stationaryWorkers + cottageWorkers
+                  }}</span>
+                </v-avatar>
+              </template>
+              <span>Stacjonarni / Chałupnicy / Razem</span>
+            </v-tooltip>
+          </template>
+          <template
+            v-slot:[`item.totalHours`]="{
+              item: { stationaryHours, cottageHours }
+            }"
           >
-          godziny stacjonarne<br />
-          <v-icon aria-label="Stationary hours" role="img" small
-            >mdi-home-city-outline</v-icon
-          >
-          godziny chałupnicze
-        </p>
+            {{ stationaryHours }} / {{ cottageHours }} /
+            <v-tooltip left>
+              <template v-slot:activator="{ on, attrs }">
+                <v-avatar color="primary" size="32" v-bind="attrs" v-on="on">
+                  <span class="white--text">{{
+                    stationaryHours + cottageHours + 100
+                  }}</span>
+                </v-avatar>
+              </template>
+              <span>Stacjonarne / Chałupnicze / Razem</span>
+            </v-tooltip>
+          </template>
+          <template v-slot:expanded-item="{ headers, item: { users } }">
+            <td :colspan="headers.length">
+              <v-chip
+                v-for="(user, i) in users"
+                :key="i"
+                class="ma-1"
+                :color="getColor(user.groups)"
+                dark
+                small
+              >
+                <v-icon left small>
+                  {{ getGroupIcon(user.groups) }}
+                </v-icon>
+                {{ user.email }}
+              </v-chip>
+            </td>
+          </template>
+        </v-data-table>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-var dayjs = require("dayjs");
-var weekday = require("dayjs/plugin/weekday");
-var weekOfYear = require("dayjs/plugin/weekOfYear");
-var duration = require("dayjs/plugin/duration");
-
-require("dayjs/locale/pl");
-
-dayjs.locale("pl");
-dayjs.extend(weekday);
-dayjs.extend(weekOfYear);
-dayjs.extend(duration);
-
 export default {
-  name: "Calendar",
+  name: "Overview",
   data: () => ({
+    expanded: [],
+    footerProps: {
+      itemsPerPageOptions: [20, 50, 100]
+    },
+
     today: "2021-03-03",
-    hours: {
-      "2021-03-08": {
-        cottageHours: 20,
-        stationaryHours: 80
+    headers: [
+      {
+        text: "Data",
+        value: "date"
       },
-      "2021-03-07": {
-        cottageHours: 30,
-        stationaryHours: 30
+      {
+        text: "Pracownicy",
+        value: "totalWorkers",
+        sortable: false
       },
-      "2021-03-06": {
-        cottageHours: 50,
-        stationaryHours: 150
+      {
+        text: "Godziny",
+        value: "totalHours",
+        sortable: false
       },
-      "2021-03-05": {
-        cottageHours: 20,
-        stationaryHours: 80
+      { text: "", value: "data-table-expand" }
+    ],
+    items: [
+      {
+        date: "2021-03-08",
+        stationaryHours: 8,
+        stationaryWorkers: 1,
+        cottageHours: 10,
+        cottageWorkers: 2,
+        users: [
+          {
+            email: "foo1@bar.baz",
+            groups: ["cottage_worker", "new_employee"]
+          },
+          {
+            email: "foo2@bar.baz",
+            groups: ["cottage_worker"]
+          },
+          {
+            email: "foo3@bar.baz",
+            groups: ["stationary_worker", "new_employee"]
+          }
+        ]
       },
-      "2021-03-04": {
-        cottageHours: 30,
-        stationaryHours: 30
+      {
+        date: "2021-03-09",
+        stationaryHours: 8,
+        stationaryWorkers: 1,
+        cottageHours: 10,
+        cottageWorkers: 2,
+        users: [
+          {
+            email: "foo1@bar.baz",
+            groups: ["cottage_worker", "new_employee"]
+          },
+          {
+            email: "foo2@bar.baz",
+            groups: ["cottage_worker"]
+          },
+          {
+            email: "foo3@bar.baz",
+            groups: ["stationary_worker", "new_employee"]
+          }
+        ]
       },
-      "2021-03-03": {
-        cottageHours: 50,
-        stationaryHours: 150
-      },
-      "2021-03-02": {
-        cottageHours: 20,
-        stationaryHours: 20
-      },
-      "2021-03-01": {
-        cottageHours: 40,
-        stationaryHours: 160
-      },
-      "2021-02-28": {
-        cottageHours: 30,
-        stationaryHours: 30
-      },
-      "2021-02-27": {
-        cottageHours: 30,
-        stationaryHours: 30
+      {
+        date: "2021-03-10",
+        stationaryHours: 8,
+        stationaryWorkers: 1,
+        cottageHours: 10,
+        cottageWorkers: 2,
+        users: [
+          {
+            email: "foo1@bar.baz",
+            groups: ["cottage_worker", "new_employee"]
+          },
+          {
+            email: "foo2@bar.baz",
+            groups: ["cottage_worker"]
+          },
+          {
+            email: "foo3@bar.baz",
+            groups: ["stationary_worker", "new_employee"]
+          }
+        ]
       }
-    }
+    ]
   }),
-  computed: {
-    $_calendar_today() {
-      return dayjs(this.today);
-    },
-    currentWeekdays() {
-      return [0, 1, 2, 3, 4, 5, 6]
-        .map(num => num - this.$_calendar_today.weekday())
-        .map(relNum =>
-          this.$_calendar_today
-            .add(dayjs.duration({ days: relNum }))
-            .format("YYYY-MM-DD")
-        );
-    },
-    currentWeekNumber() {
-      return this.$_calendar_today.week();
-    },
-    totalCottageHours() {
-      return this.currentWeekdays
-        .map(date => this.getCottageHours(date))
-        .reduce((prev, current) => prev + current, 0);
-    },
-    totalStationaryHours() {
-      return this.currentWeekdays
-        .map(date => this.getStationaryHours(date))
-        .reduce((prev, current) => prev + current, 0);
-    }
-  },
+  computed: {},
   mounted() {},
   methods: {
-    getCottageHours(date) {
-      return this.hours?.[date]?.cottageHours || 0;
+    getColor(groups) {
+      if (groups.indexOf("new_employee") !== -1) {
+        return "green";
+      } else {
+        return "primary";
+      }
     },
-    getStationaryHours(date) {
-      return this.hours?.[date]?.stationaryHours || 0;
-    },
-    isCurrentWeekday(day) {
-      return this.currentWeekdays.indexOf(day) !== -1;
+    getGroupIcon(groups) {
+      if (
+        groups.indexOf("stationary_worker") !== -1 &&
+        groups.indexOf("cottage_worker") === -1
+      ) {
+        return "mdi-factory";
+      } else if (
+        groups.indexOf("stationary_worker") === -1 &&
+        groups.indexOf("cottage_worker") !== -1
+      ) {
+        return "mdi-home-city-outline";
+      } else {
+        return "mdi-alert-circle-outline";
+      }
     }
   }
 };
