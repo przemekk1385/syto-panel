@@ -23,6 +23,10 @@
             Godziny
           </v-btn>
 
+          <v-btn exact text :to="{ name: 'users' }">
+            Użytkownicy
+          </v-btn>
+
           <v-btn icon>
             <v-icon>mdi-logout</v-icon>
           </v-btn>
