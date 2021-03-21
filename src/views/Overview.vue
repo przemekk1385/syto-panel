@@ -8,7 +8,6 @@
     <v-row>
       <v-col>
         <v-data-table
-          locale="pl-PL"
           class="elevation-1"
           :expanded.sync="expanded"
           :headers="headers"
