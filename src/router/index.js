@@ -7,12 +7,12 @@ const routes = [
   {
     path: "/",
     name: "overview",
-    component: () => import("../views/Overview.vue")
+    component: () => import("../views/admin/Overview.vue")
   },
   {
     path: "/slots",
     name: "slots",
-    component: () => import("../views/Slots.vue")
+    component: () => import("../views/admin/Slots.vue")
   },
   {
     path: "/hours",
@@ -22,7 +22,7 @@ const routes = [
   {
     path: "/users",
     name: "users",
-    component: () => import("../views/Users.vue")
+    component: () => import("../views/admin/Users.vue")
   }
 ];
 
