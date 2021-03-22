@@ -11,6 +11,10 @@
         <v-spacer></v-spacer>
 
         <v-toolbar-items>
+          <v-btn exact text :to="{ name: 'login' }">
+            Home
+          </v-btn>
+
           <v-btn exact text :to="{ name: 'overview' }">
             Przegląd
           </v-btn>
