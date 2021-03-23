@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <h1 class="text-h3">Godziny stacjonarne</h1>
+        <h1 class="text-h3">Mój kalendarz</h1>
       </v-col>
     </v-row>
     <v-row>

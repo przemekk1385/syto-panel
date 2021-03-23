@@ -11,7 +11,7 @@
                     <v-form>
                       <v-row>
                         <v-col>
-                          <span class="cyan--text title">Logowanie</span>
+                          <span class="primary--text title">Logowanie</span>
                         </v-col>
                       </v-row>
                       <v-row>
@@ -31,14 +31,14 @@
                       <v-row>
                         <v-col class="d-flex">
                           <v-spacer></v-spacer>
-                          <v-btn color="cyan" dark rounded>Zaloguj</v-btn>
+                          <v-btn color="primary" dark rounded>Zaloguj</v-btn>
                         </v-col>
                       </v-row>
                     </v-form>
                   </v-container>
                 </v-col>
                 <v-col cols="4" class="pl-0">
-                  <v-sheet color="cyan" dark class="rounded-r" height="100%">
+                  <v-sheet color="primary" dark class="rounded-r" height="100%">
                     <v-container fill-height fluid class="text-center">
                       <v-row>
                         <v-col>
@@ -75,10 +75,10 @@
                     <v-form>
                       <v-row>
                         <v-col class="align-center d-flex">
-                          <div class="cyan--text title">Rejestracja</div>
+                          <div class="primary--text title">Rejestracja</div>
                           <v-spacer></v-spacer>
                           <v-btn icon large>
-                            <v-icon color="cyan" large @click="step = 1">
+                            <v-icon color="primary" large @click="step = 1">
                               mdi-close-circle-outline
                             </v-icon>
                           </v-btn>
@@ -206,7 +206,7 @@
                       <v-row>
                         <v-col class="d-flex">
                           <v-spacer></v-spacer>
-                          <v-btn color="cyan" dark rounded>Wyślij</v-btn>
+                          <v-btn color="primary" dark rounded>Wyślij</v-btn>
                         </v-col>
                       </v-row>
                     </v-form>

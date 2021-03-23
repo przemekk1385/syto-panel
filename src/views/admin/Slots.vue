@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <h1 class="text-h3">Dni robocze</h1>
+        <h1 class="text-h3">Godziny</h1>
       </v-col>
     </v-row>
     <v-row>

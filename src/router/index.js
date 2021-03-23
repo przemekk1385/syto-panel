@@ -6,23 +6,23 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    name: "overview",
-    component: () => import("../views/admin/Overview.vue")
+    name: "myCalendar",
+    component: () => import("../views/MyCalendar.vue")
   },
   {
     path: "/login",
     name: "login",
-    component: () => import("../views/Home.vue")
+    component: () => import("../views/SignInUp.vue")
+  },
+  {
+    path: "/overview",
+    name: "overview",
+    component: () => import("../views/admin/Overview.vue")
   },
   {
     path: "/slots",
     name: "slots",
     component: () => import("../views/admin/Slots.vue")
-  },
-  {
-    path: "/hours",
-    name: "hours",
-    component: () => import("../views/Hours.vue")
   },
   {
     path: "/users",
