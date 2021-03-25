@@ -9,6 +9,7 @@
     "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "clean-webpack-plugin": "^3.0.0",
     "core-js": "^3.6.5",
     "dayjs": "^1.10.4",
