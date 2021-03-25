@@ -8,7 +8,7 @@
               <v-row>
                 <v-col cols="8">
                   <v-container fluid>
-                    <v-form>
+                    <v-form ref="loginForm">
                       <v-row>
                         <v-col>
                           <span class="primary--text title">Logowanie</span>
@@ -17,13 +17,17 @@
                       <v-row>
                         <v-col>
                           <v-text-field
+                            v-model="username"
                             label="Email"
                             prepend-icon="mdi-at"
+                            :rules="[rules.required]"
                             type="text"
                           />
                           <v-text-field
+                            v-model="password"
                             label="Hasło"
                             prepend-icon="mdi-lock"
+                            :rules="[rules.required]"
                             type="password"
                           />
                         </v-col>
@@ -31,7 +35,13 @@
                       <v-row>
                         <v-col class="d-flex">
                           <v-spacer></v-spacer>
-                          <v-btn color="primary" dark rounded>Zaloguj</v-btn>
+                          <v-btn
+                            color="primary"
+                            dark
+                            rounded
+                            @click="submitLoginForm"
+                            >Zaloguj</v-btn
+                          >
                         </v-col>
                       </v-row>
                     </v-form>
@@ -222,6 +232,8 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+
 export default {
   data: () => ({
     dateOfBirth: undefined,
@@ -231,11 +243,35 @@ export default {
     workerGroup: [
       { text: "Pracownik stacjonarny", value: "stationary" },
       { text: "Chałupnik", value: "cottage" }
-    ]
+    ],
+
+    // login form
+    username: undefined,
+    password: undefined,
+
+    // common forms stuff
+    rules: {
+      required: val => !!val || "To pole jest wymagane."
+    }
   }),
-  props: {
-    source: String
+  computed: {
+    ...mapGetters({ isAuthenticated: "isAuthenticated" }),
+    credentials() {
+      const { username, password } = this;
+
+      return { username, password };
+    }
   },
-  methods: {}
+  methods: {
+    ...mapActions({ login: "login" }),
+    async submitLoginForm() {
+      if (this.$refs.loginForm.validate()) {
+        await this.login(this.credentials);
+        if (this.isAuthenticated) {
+          this.$router.push({ name: "myCalendar" });
+        }
+      }
+    }
+  }
 };
 </script>

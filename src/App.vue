@@ -43,9 +43,41 @@
 
       <v-main>
         <router-view />
+        <v-snackbar v-model="displaySnackbar">
+          {{ errorMessage }}
+          <template v-slot:action="{ attrs }">
+            <v-btn text v-bind="attrs" @click="wipeErrorMessage">
+              Zamknij
+            </v-btn>
+          </template>
+        </v-snackbar>
       </v-main>
 
       <v-footer app> </v-footer>
     </v-app>
   </div>
 </template>
+
+<script>
+import { mapActions } from "vuex";
+
+export default {
+  data: () => ({}),
+  computed: {
+    errorMessage() {
+      return this.$store.state.errorMessage;
+    },
+    displaySnackbar: {
+      get() {
+        return Boolean(this.errorMessage);
+      },
+      set() {
+        this.wipeErrorMessage();
+      }
+    }
+  },
+  methods: {
+    ...mapActions({ wipeErrorMessage: "wipeErrorMessage" })
+  }
+};
+</script>
