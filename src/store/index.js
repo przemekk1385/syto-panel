@@ -40,6 +40,9 @@ export default new Vuex.Store({
         }
       }
     },
+    logout({ commit }) {
+      commit("setToken", { token: undefined });
+    },
     wipeErrorMessage({ commit }) {
       commit("setErrorMessage", { message: undefined });
     }

@@ -35,7 +35,7 @@
             </v-list>
           </v-menu>
 
-          <v-btn icon>
+          <v-btn icon @click="logout">
             <v-icon>mdi-logout</v-icon>
           </v-btn>
         </v-toolbar-items>
@@ -59,11 +59,12 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   data: () => ({}),
   computed: {
+    ...mapGetters({ isAuthenticated: "isAuthenticated" }),
     errorMessage() {
       return this.$store.state.errorMessage;
     },
@@ -76,8 +77,15 @@ export default {
       }
     }
   },
+  watch: {
+    isAuthenticated(val) {
+      if (!val) {
+        this.$router.push({ name: "Login" });
+      }
+    }
+  },
   methods: {
-    ...mapActions({ wipeErrorMessage: "wipeErrorMessage" })
+    ...mapActions({ logout: "logout", wipeErrorMessage: "wipeErrorMessage" })
   }
 };
 </script>
