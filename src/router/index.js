@@ -8,27 +8,27 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    name: "myCalendar",
+    name: "MyCalendar",
     component: () => import("../views/MyCalendar.vue")
   },
   {
     path: "/login",
-    name: "login",
+    name: "Login",
     component: () => import("../views/SignInUp.vue")
   },
   {
     path: "/overview",
-    name: "overview",
+    name: "Overview",
     component: () => import("../views/admin/Overview.vue")
   },
   {
     path: "/slots",
-    name: "slots",
+    name: "Slots",
     component: () => import("../views/admin/Slots.vue")
   },
   {
     path: "/users",
-    name: "users",
+    name: "Users",
     component: () => import("../views/admin/Users.vue")
   }
 ];
@@ -40,8 +40,8 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.name !== "login" && !store.getters.isAuthenticated)
-    next({ name: "login" });
+  if (to.name !== "Login" && !store.getters.isAuthenticated)
+    next({ name: "Login" });
   else next();
 });
 

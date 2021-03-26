@@ -11,7 +11,7 @@
         <v-spacer></v-spacer>
 
         <v-toolbar-items>
-          <v-btn exact text :to="{ name: 'myCalendar' }">
+          <v-btn exact text :to="{ name: 'MyCalendar' }">
             Mój kalendarz
           </v-btn>
 
@@ -23,13 +23,13 @@
             </template>
 
             <v-list>
-              <v-list-item exact :to="{ name: 'overview' }">
+              <v-list-item exact :to="{ name: 'Overview' }">
                 <v-list-item-title>Przegląd</v-list-item-title>
               </v-list-item>
-              <v-list-item exact :to="{ name: 'slots' }">
+              <v-list-item exact :to="{ name: 'Slots' }">
                 <v-list-item-title>Godziny</v-list-item-title>
               </v-list-item>
-              <v-list-item exast :to="{ name: 'users' }">
+              <v-list-item exast :to="{ name: 'Users' }">
                 <v-list-item-title>Pracownicy</v-list-item-title>
               </v-list-item>
             </v-list>

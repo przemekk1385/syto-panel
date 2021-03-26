@@ -268,7 +268,7 @@ export default {
       if (this.$refs.loginForm.validate()) {
         await this.login(this.credentials);
         if (this.isAuthenticated) {
-          this.$router.push({ name: "myCalendar" });
+          this.$router.push({ name: "MyCalendar" });
         }
       }
     }
