@@ -15,10 +15,10 @@ export default new Vuex.Store({
     isAuthenticated: ({ token }) => !!token
   },
   mutations: {
-    setToken(state, { token }) {
+    setToken(state, token) {
       state.token = token;
     },
-    setErrorMessage(state, { message }) {
+    setErrorMessage(state, message) {
       state.errorMessage = message;
     }
   },
@@ -30,14 +30,12 @@ export default new Vuex.Store({
           password
         });
         const { token } = tokenPromise?.data;
-        commit("setToken", { token });
+        commit("setToken", token);
       } catch ({ response: { status } }) {
         if (status === 400) {
-          commit("setErrorMessage", { message: "Logowanie nie powiodło się." });
+          commit("setErrorMessage", "Logowanie nie powiodło się.");
         } else {
-          commit("setErrorMessage", {
-            message: `Nieznany błąd. Kod ${status}.`
-          });
+          commit("setErrorMessage", `Nieznany błąd. Kod ${status}.`);
         }
       }
     },
@@ -75,9 +73,7 @@ export default new Vuex.Store({
         }
       }) {
         if (status === 400) {
-          commit("setErrorMessage", {
-            message: "Rejestracja nie powiodła się."
-          });
+          commit("setErrorMessage", "Rejestracja nie powiodła się.");
           return {
             data: {
               email: email || [],
@@ -86,9 +82,7 @@ export default new Vuex.Store({
             ok: false
           };
         } else {
-          commit("setErrorMessage", {
-            message: `Nieznany błąd. Kod ${status}.`
-          });
+          commit("setErrorMessage", `Nieznany błąd. Kod ${status}.`);
           return {
             ok: false
           };
@@ -96,10 +90,10 @@ export default new Vuex.Store({
       }
     },
     logout({ commit }) {
-      commit("setToken", { token: undefined });
+      commit("setToken", undefined);
     },
     wipeErrorMessage({ commit }) {
-      commit("setErrorMessage", { message: undefined });
+      commit("setErrorMessage", undefined);
     }
   },
   modules: {}
