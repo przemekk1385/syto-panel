@@ -8,6 +8,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     errorMessage: undefined,
+    me: undefined,
     token: undefined
   },
   getters: {
@@ -20,10 +21,29 @@ export default new Vuex.Store({
     },
     setErrorMessage(state, message) {
       state.errorMessage = message;
+    },
+    setMe(state, me) {
+      state.me = me;
     }
   },
   actions: {
-    async login({ commit }, { username, password }) {
+    async getMe({ commit, getters }) {
+      try {
+        const userInfoPromise = await axios.get(
+          "/api/v1/user/me/",
+          getters.headers
+        );
+        const { data: me } = userInfoPromise;
+        commit("setMe", me);
+      } catch ({ response: { status } }) {
+        if (status === 400) {
+          commit("setErrorMessage", "Nie udało się pobrać danych użytkownika.");
+        } else {
+          commit("setErrorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+      }
+    },
+    async login({ commit, dispatch }, { username, password }) {
       try {
         const tokenPromise = await axios.post("/api-token-auth/", {
           username,
