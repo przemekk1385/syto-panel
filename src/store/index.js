@@ -11,6 +11,7 @@ export default new Vuex.Store({
     token: undefined
   },
   getters: {
+    headers: ({ token }) => ({ headers: `Authorization: Token ${token}` }),
     isAuthenticated: ({ token }) => !!token
   },
   mutations: {
