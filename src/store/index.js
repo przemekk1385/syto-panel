@@ -51,6 +51,7 @@ export default new Vuex.Store({
         });
         const { token } = tokenPromise?.data;
         commit("setToken", token);
+        dispatch("getMe");
       } catch ({ response: { status } }) {
         if (status === 400) {
           commit("setErrorMessage", "Logowanie nie powiodło się.");
