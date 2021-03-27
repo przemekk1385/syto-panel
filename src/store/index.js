@@ -112,6 +112,7 @@ export default new Vuex.Store({
     },
     logout({ commit }) {
       commit("setToken", undefined);
+      commit("setMe", undefined);
     },
     wipeErrorMessage({ commit }) {
       commit("setErrorMessage", undefined);
