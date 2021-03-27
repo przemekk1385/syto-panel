@@ -20,14 +20,14 @@ export default new Vuex.Store({
       groups.indexOf("stationary_worker") !== -1
   },
   mutations: {
-    setToken(state, token) {
-      state.token = token;
-    },
     setErrorMessage(state, message) {
       state.errorMessage = message;
     },
     setMe(state, me) {
       state.me = me;
+    },
+    setToken(state, token) {
+      state.token = token;
     }
   },
   actions: {
