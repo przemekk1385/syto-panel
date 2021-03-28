@@ -297,8 +297,9 @@ export default {
     },
 
     fillAvailabilityForm(date) {
-      const { start, end } = this.availabilityPeriods?.[date] || {};
+      const { id, start, end } = this.availabilityPeriods?.[date] || {};
 
+      this.id = id;
       this.start = start;
       this.end = end;
       this.slot = date;
