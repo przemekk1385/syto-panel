@@ -129,7 +129,7 @@
                   color="warning"
                   icon
                   outlined
-                  @click="$refs.availabilityForm.reset()"
+                  @click="resetAvailabilityForm"
                 >
                   <v-icon class="mr-1">
                     mdi-eraser
@@ -303,6 +303,10 @@ export default {
       this.end = end;
       this.slot = date;
       this.dialog = true;
+    },
+    resetAvailabilityForm() {
+      this.$refs.availabilityForm.reset();
+      this.id = undefined;
     },
     async submitAvailabilityForm() {
       if (this.$refs.availabilityForm.validate()) {
