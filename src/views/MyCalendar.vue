@@ -219,6 +219,7 @@ export default {
           value?.split(":")?.[0] !== "23" || "Niedozwolona godzina."
       },
 
+      id: undefined,
       start: undefined,
       end: undefined,
       slot: undefined
@@ -271,7 +272,8 @@ export default {
     ...mapActions({
       slotList: "slotList",
       availabilityPeriodList: "availabilityPeriodList",
-      availabilityPeriodCreate: "availabilityPeriodCreate"
+      availabilityPeriodCreate: "availabilityPeriodCreate",
+      availabilityPeriodUpdate: "availabilityPeriodUpdate"
     }),
     allowedStep: m => m % 5 === 0,
 
@@ -309,10 +311,17 @@ export default {
           end: this.end,
           slot: this.slot
         };
-        const {
-          data: { id, start, end, slot } = {},
-          ok
-        } = await this.availabilityPeriodCreate(payload);
+        let r;
+
+        if (!this.id) {
+          r = await this.availabilityPeriodCreate(payload);
+        } else {
+          r = await this.availabilityPeriodUpdate(
+            Object.assign(payload, { id: this.id })
+          );
+        }
+
+        const { data: { id, start, end, slot } = {}, ok } = r;
 
         if (ok) {
           this.availabilityPeriods[slot] = { id, start, end };
