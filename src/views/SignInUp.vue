@@ -403,7 +403,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions({ login: "login", register: "register" }),
+    ...mapActions({ login: "login", userCreate: "userCreate" }),
     async submitLoginForm() {
       if (this.$refs.loginForm.validate()) {
         await this.login(this.credentials);
@@ -414,7 +414,7 @@ export default {
     },
     async submitRegistrationForm() {
       if (this.$refs.registrationForm.validate()) {
-        const { data, ok } = await this.register(this.userPayload);
+        const { data, ok } = await this.userCreate(this.userPayload);
 
         if (ok) {
           this.step = 3;
