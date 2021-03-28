@@ -135,6 +135,17 @@
                     mdi-eraser
                   </v-icon>
                 </v-btn>
+                <v-btn
+                  v-if="id"
+                  color="error"
+                  icon
+                  outlined
+                  @click="deleteAvailabilityPeriod"
+                >
+                  <v-icon class="mr-1">
+                    mdi-trash-can-outline
+                  </v-icon>
+                </v-btn>
               </v-card-actions>
             </v-card>
           </v-form>
@@ -273,7 +284,8 @@ export default {
       slotList: "slotList",
       availabilityPeriodList: "availabilityPeriodList",
       availabilityPeriodCreate: "availabilityPeriodCreate",
-      availabilityPeriodUpdate: "availabilityPeriodUpdate"
+      availabilityPeriodUpdate: "availabilityPeriodUpdate",
+      availabilityPeriodDestroy: "availabilityPeriodDestroy"
     }),
     allowedStep: m => m % 5 === 0,
 
@@ -334,6 +346,12 @@ export default {
 
         this.dialog = false;
       }
+    },
+    async deleteAvailabilityPeriod() {
+      await this.availabilityPeriodDestroy(this.id);
+      delete this.availabilityPeriods[this.slot];
+
+      this.dialog = false;
     }
   }
 };
