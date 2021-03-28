@@ -114,18 +114,25 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" icon @click="submitAvailabilityForm()">
+
+                <v-btn
+                  color="primary"
+                  icon
+                  outlined
+                  @click="submitAvailabilityForm"
+                >
                   <v-icon class="mr-1">
                     mdi-send
                   </v-icon>
                 </v-btn>
                 <v-btn
-                  color="error"
+                  color="warning"
                   icon
+                  outlined
                   @click="$refs.availabilityForm.reset()"
                 >
                   <v-icon class="mr-1">
-                    mdi-cancel
+                    mdi-eraser
                   </v-icon>
                 </v-btn>
               </v-card-actions>
