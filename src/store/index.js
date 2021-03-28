@@ -20,53 +20,18 @@ export default new Vuex.Store({
       groups.indexOf("stationary_worker") !== -1
   },
   mutations: {
-    setErrorMessage(state, message) {
+    errorMessage(state, message) {
       state.errorMessage = message;
     },
-    setMe(state, me) {
-      state.me = me;
+    me(state, user) {
+      state.me = user;
     },
-    setToken(state, token) {
+    token(state, token) {
       state.token = token;
     }
   },
   actions: {
-    async getMe({ commit, getters }) {
-      try {
-        const userMePromise = await axios.get(
-          "/api/v1/user/me/",
-          getters.headers
-        );
-        const { data } = userMePromise;
-        commit("setMe", data);
-        return { data, ok: true };
-      } catch ({ response: { status } }) {
-        if (status === 400) {
-          commit("setErrorMessage", "Nie udało się pobrać danych użytkownika.");
-        } else {
-          commit("setErrorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
-        return { ok: false };
-      }
-    },
-    async login({ commit, dispatch }, { username, password }) {
-      try {
-        const tokenPromise = await axios.post("/api-token-auth/", {
-          username,
-          password
-        });
-        const { token } = tokenPromise?.data;
-        commit("setToken", token);
-        dispatch("getMe");
-      } catch ({ response: { status } }) {
-        if (status === 400) {
-          commit("setErrorMessage", "Logowanie nie powiodło się.");
-        } else {
-          commit("setErrorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
-      }
-    },
-    async register(
+    async userCreate(
       { commit },
       {
         email,
@@ -94,13 +59,10 @@ export default new Vuex.Store({
         });
         return { ok: true };
       } catch ({
-        response: {
-          data: { email, phone_number: phoneNumber },
-          status
-        }
+        response: { data: { email, phone_number: phoneNumber } = {}, status }
       }) {
         if (status === 400) {
-          commit("setErrorMessage", "Rejestracja nie powiodła się.");
+          commit("errorMessage", "Rejestracja nie powiodła się.");
           return {
             data: {
               email: email || [],
@@ -109,19 +71,104 @@ export default new Vuex.Store({
             ok: false
           };
         } else {
-          commit("setErrorMessage", `Nieznany błąd. Kod ${status}.`);
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
           return {
+            data: {},
             ok: false
           };
         }
       }
     },
+    async userMe({ commit, getters }) {
+      try {
+        const userMePromise = await axios.get(
+          "/api/v1/user/me/",
+          getters.headers
+        );
+        const { data } = userMePromise;
+        commit("me", data);
+        return { data, ok: true };
+      } catch ({ response: { data, status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się pobrać danych użytkownika.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+        return { data, ok: false };
+      }
+    },
+    async slotList({ commit, getters }) {
+      try {
+        const slotsPromise = await axios.get("/api/v1/slot/", getters.headers);
+        const { data } = slotsPromise;
+        return { data, ok: true };
+      } catch ({ response: { data, status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się pobrać slotów.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+        return { data, ok: false };
+      }
+    },
+    async availabilityPeriodList({ commit, getters }) {
+      try {
+        const availabilityPeriodPromise = await axios.get(
+          "/api/v1/availability/period/",
+          getters.headers
+        );
+        const { data } = availabilityPeriodPromise;
+        return { data, ok: true };
+      } catch ({ response: { data, status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się pobrać godzin.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+        return { data, ok: false };
+      }
+    },
+    async availabilityPeriodCreate({ commit, getters }, payload) {
+      try {
+        const availabilityPeriodPromise = await axios.post(
+          "/api/v1/availability/period/",
+          payload,
+          getters.headers
+        );
+        const { data } = availabilityPeriodPromise;
+        return { data, ok: true };
+      } catch ({ response: { data, status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się zapisać godzin.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+        return { data, ok: false };
+      }
+    },
+    async login({ commit, dispatch }, { username, password }) {
+      try {
+        const tokenPromise = await axios.post("/api-token-auth/", {
+          username,
+          password
+        });
+        const { token } = tokenPromise?.data;
+        commit("token", token);
+        dispatch("userMe");
+      } catch ({ response: { status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Logowanie nie powiodło się.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+      }
+    },
     logout({ commit }) {
-      commit("setToken", undefined);
-      commit("setMe", undefined);
+      commit("token", undefined);
+      commit("me", undefined);
     },
     wipeErrorMessage({ commit }) {
-      commit("setErrorMessage", undefined);
+      commit("errorMessage", undefined);
     }
   },
   modules: {}
