@@ -12,7 +12,7 @@ export default new Vuex.Store({
     token: undefined
   },
   getters: {
-    headers: ({ token }) => ({ headers: `Authorization: Token ${token}` }),
+    headers: ({ token }) => ({ headers: { Authorization: `Token ${token}` } }),
     isAuthenticated: ({ token }) => !!token,
     isCottageWorker: ({ me: { groups } } = { me: { groups: [] } }) =>
       groups.indexOf("cottage_worker") !== -1,
