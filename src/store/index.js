@@ -146,6 +146,27 @@ export default new Vuex.Store({
         return { data, ok: false };
       }
     },
+    async availabilityPeriodUpdate(
+      { commit, getters },
+      { id, start, end, slot }
+    ) {
+      try {
+        const availabilityPeriodPromise = await axios.put(
+          `/api/v1/availability/period/${id}/`,
+          { start, end, slot },
+          getters.headers
+        );
+        const { data } = availabilityPeriodPromise;
+        return { data, ok: true };
+      } catch ({ response: { data, status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się uaktualnić godzin.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+        return { data, ok: false };
+      }
+    },
     async login({ commit, dispatch }, { username, password }) {
       try {
         const tokenPromise = await axios.post("/api-token-auth/", {
