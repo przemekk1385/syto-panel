@@ -32,7 +32,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="date"
+                          v-model="slot"
                           label="Data"
                           prepend-icon="mdi-calendar"
                           readonly
@@ -42,7 +42,7 @@
                         ></v-text-field>
                       </template>
                       <v-date-picker
-                        v-model="date"
+                        v-model="slot"
                         first-day-of-week="1"
                         landscape
                         locale="pl"
@@ -148,24 +148,35 @@
           <v-calendar
             color="primary"
             locale="pl"
-            :now="today"
             show-week
-            :value="today"
             :weekdays="[1, 2, 3, 4, 5, 6, 0]"
             @click:date="fillAvailabilityForm"
           >
+            <template v-slot:day-label="{ date, past, present }">
+              <v-btn
+                :color="present ? 'primary' : ''"
+                :disabled="past || openDays.indexOf(date) === -1"
+                elevation="0"
+                fab
+                small
+                :text="!present"
+                @click="fillAvailabilityForm(date)"
+              >
+                {{ formatDate(date) }}
+              </v-btn>
+            </template>
             <template v-slot:day="{ date, past }">
               <v-container class="mt-1">
                 <v-row dense>
                   <v-col class="text-center">
                     <v-sheet
-                      v-if="events[date]"
+                      v-if="availabilityPeriods[date]"
                       :color="!past ? 'primary' : 'secondary'"
                       class="px-1 py-1 text-caption"
                       dark
                       rounded
                     >
-                      {{ printEventDetails(date) }}
+                      {{ getSummary(date) }}
                     </v-sheet>
                   </v-col>
                 </v-row>
@@ -179,95 +190,44 @@
 </template>
 
 <script>
-var dayjs = require("dayjs");
-var weekday = require("dayjs/plugin/weekday");
-var weekOfYear = require("dayjs/plugin/weekOfYear");
-var duration = require("dayjs/plugin/duration");
-
 require("dayjs/locale/pl");
 
+import { mapActions } from "vuex";
+
+var dayjs = require("dayjs");
+var duration = require("dayjs/plugin/duration");
+
 dayjs.locale("pl");
-dayjs.extend(weekday);
-dayjs.extend(weekOfYear);
 dayjs.extend(duration);
 
 export default {
-  name: "Calendar",
-  data: () => ({
-    today: "2021-03-03",
+  name: "MyCalendar",
+  data() {
+    return {
+      availabilityPeriods: {},
+      openDays: [],
 
-    date: undefined,
-    start: undefined,
-    end: undefined,
+      dialog: false,
 
-    dialog: false,
-    rules: {
-      required: value => !!value || "To pole jest wymagane!",
-      not23: value => value?.split(":")?.[0] !== "23" || "Niedozwolona godzina!"
-    },
+      datePicker: false,
+      startTimePicker: false,
+      endTimePicker: false,
 
-    datePicker: false,
-    startTimePicker: false,
-    endTimePicker: false,
+      rules: {
+        required: value => !!value || "To pole jest wymagane.",
+        not23: value =>
+          value?.split(":")?.[0] !== "23" || "Niedozwolona godzina."
+      },
 
-    events: {
-      "2021-03-01": [
-        {
-          start: dayjs("2021-03-01 6:00"),
-          end: dayjs("2021-03-01 14:00")
-        }
-      ],
-      "2021-03-02": [
-        {
-          start: dayjs("2021-03-02 6:00"),
-          end: dayjs("2021-03-02 14:00")
-        }
-      ],
-      "2021-03-04": [
-        {
-          start: dayjs("2021-03-04 14:00"),
-          end: dayjs("2021-03-04 22:00")
-        }
-      ],
-      "2021-03-05": [
-        {
-          start: dayjs("2021-03-05 14:00"),
-          end: dayjs("2021-03-05 22:00")
-        }
-      ],
-      "2021-03-06": [
-        {
-          start: dayjs("2021-03-06 14:00"),
-          end: dayjs("2021-03-06 22:00")
-        }
-      ],
-      "2021-03-10": [
-        {
-          start: dayjs("2021-03-10 6:00"),
-          end: dayjs("2021-03-10 12:00")
-        }
-      ]
-    }
-  }),
+      start: undefined,
+      end: undefined,
+      slot: undefined
+    };
+  },
   computed: {
-    $_calendar_today() {
-      return dayjs(this.today);
-    },
-    currentWeekdays() {
-      return [0, 1, 2, 3, 4, 5, 6]
-        .map(num => num - this.$_calendar_today.weekday())
-        .map(relNum =>
-          this.$_calendar_today
-            .add(dayjs.duration({ days: relNum }))
-            .format("YYYY-MM-DD")
-        );
-    },
-    currentWeekNumber() {
-      return this.$_calendar_today.week();
-    },
     hourAfterStart() {
       if (this.start) {
-        const hourAfter = dayjs(`${this.date || this.today} ${this.start}`).add(
+        const hourAfter = dayjs(`${this.slot || this.today} ${this.start}`).add(
           dayjs.duration({ hours: 1 })
         );
         return hourAfter.format("HH:mm");
@@ -278,49 +238,85 @@ export default {
     hourBeforeEnd() {
       if (this.end) {
         const hourBefore = dayjs(
-          `${this.date || this.today} ${this.end}`
+          `${this.slot || this.today} ${this.end}`
         ).subtract(dayjs.duration({ hours: 1 }));
         return hourBefore.format("HH:mm");
       } else {
         return undefined;
       }
     },
+    today() {
+      return dayjs().format("YYYY-MM-DD");
+    },
     tomorrow() {
-      return this.$_calendar_today
+      return dayjs()
         .add(dayjs.duration({ days: 1 }))
         .format("YYYY-MM-DD");
     }
   },
-  mounted() {},
+  async mounted() {
+    const { data: openDays = [] } = await this.slotList();
+    const {
+      data: availabilityPeriods = []
+    } = await this.availabilityPeriodList();
+
+    this.openDays = openDays.map(item => item.day);
+    this.availabilityPeriods = availabilityPeriods.reduce(
+      (prev, { id, start, end, slot }) =>
+        Object.assign(prev, { [slot]: { id, start, end } }),
+      {}
+    );
+  },
   methods: {
+    ...mapActions({
+      slotList: "slotList",
+      availabilityPeriodList: "availabilityPeriodList",
+      availabilityPeriodCreate: "availabilityPeriodCreate"
+    }),
     allowedStep: m => m % 5 === 0,
-    isCurrentWeekday(day) {
-      return this.currentWeekdays.indexOf(day) !== -1;
+    formatDate: date => {
+      const day = dayjs(date);
+      if (day.date() === 1) {
+        return day.format("D MMM");
+      } else {
+        return day.format("D");
+      }
     },
-    printEventDetails(date) {
-      const { start, end } = this.events?.[date]?.[0] || {};
+
+    getSummary(date) {
+      let { start, end } = this.availabilityPeriods?.[date] || {};
+      start = dayjs(`${date} ${start}`);
+      end = dayjs(`${date} ${end}`);
 
       return `${start.format("HH:mm")}-${end.format("HH:mm")} ${end.diff(
         start,
         "hour"
       )} godz.`;
     },
-    fillAvailabilityForm({ date, future }) {
-      if (future) {
-        this.date = date;
-        this.start = this.events?.[date]?.[0]?.start?.format("HH:mm");
-        this.end = this.events?.[date]?.[0]?.end?.format("HH:mm");
-        this.dialog = true;
-      }
+    fillAvailabilityForm(date) {
+      const { start, end } = this.availabilityPeriods?.[date] || {};
+
+      this.start = start;
+      this.end = end;
+      this.slot = date;
+      this.dialog = true;
     },
-    submitAvailabilityForm() {
+    async submitAvailabilityForm() {
       if (this.$refs.availabilityForm.validate()) {
-        this.events[this.date] = [
-          {
-            start: dayjs(`${this.date} ${this.start}`),
-            end: dayjs(`${this.date} ${this.end}`)
-          }
-        ];
+        const payload = {
+          start: this.start,
+          end: this.end,
+          slot: this.slot
+        };
+        const {
+          data: { id, start, end, slot } = {},
+          ok
+        } = await this.availabilityPeriodCreate(payload);
+
+        if (ok) {
+          this.availabilityPeriods[slot] = { id, start, end };
+        }
+
         this.dialog = false;
       }
     }
