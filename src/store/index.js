@@ -167,6 +167,20 @@ export default new Vuex.Store({
         return { data, ok: false };
       }
     },
+    async availabilityPeriodDestroy({ commit, getters }, id) {
+      try {
+        await axios.delete(
+          `/api/v1/availability/period/${id}/`,
+          getters.headers
+        );
+      } catch ({ response: { status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się usunąć godzin.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+      }
+    },
     async login({ commit, dispatch }, { username, password }) {
       try {
         const tokenPromise = await axios.post("/api-token-auth/", {
