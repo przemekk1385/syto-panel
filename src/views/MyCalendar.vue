@@ -48,6 +48,7 @@
                         locale="pl"
                         :min="tomorrow"
                         :show-current="today"
+                        @change="fillAvailabilityForm(slot)"
                         @input="datePicker = false"
                       ></v-date-picker>
                     </v-menu>
