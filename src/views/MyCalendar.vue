@@ -114,7 +114,6 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-
                 <v-btn
                   color="primary"
                   icon
@@ -274,6 +273,7 @@ export default {
       availabilityPeriodCreate: "availabilityPeriodCreate"
     }),
     allowedStep: m => m % 5 === 0,
+
     formatDate: date => {
       const day = dayjs(date);
       if (day.date() === 1) {
@@ -282,7 +282,6 @@ export default {
         return day.format("D");
       }
     },
-
     getSummary(date) {
       let { start, end } = this.availabilityPeriods?.[date] || {};
       start = dayjs(`${date} ${start}`);
@@ -293,6 +292,7 @@ export default {
         "hour"
       )} godz.`;
     },
+
     fillAvailabilityForm(date) {
       const { start, end } = this.availabilityPeriods?.[date] || {};
 
