@@ -33,18 +33,20 @@ export default new Vuex.Store({
   actions: {
     async getMe({ commit, getters }) {
       try {
-        const userInfoPromise = await axios.get(
+        const userMePromise = await axios.get(
           "/api/v1/user/me/",
           getters.headers
         );
-        const { data: me } = userInfoPromise;
-        commit("setMe", me);
+        const { data } = userMePromise;
+        commit("setMe", data);
+        return { data, ok: true };
       } catch ({ response: { status } }) {
         if (status === 400) {
           commit("setErrorMessage", "Nie udało się pobrać danych użytkownika.");
         } else {
           commit("setErrorMessage", `Nieznany błąd. Kod ${status}.`);
         }
+        return { ok: false };
       }
     },
     async login({ commit, dispatch }, { username, password }) {
