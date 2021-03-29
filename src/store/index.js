@@ -109,7 +109,17 @@ export default new Vuex.Store({
       try {
         const slotsPromise = await axios.get("/api/v1/slot/", getters.headers);
         const { data } = slotsPromise;
-        return { data, ok: true };
+        return {
+          data: data.map(
+            ({
+              id,
+              day,
+              stationary_workers_limit: stationaryWorkersLimit,
+              is_open_for_cottage_workers: isOpenForCottageWorkers
+            }) => ({ id, day, stationaryWorkersLimit, isOpenForCottageWorkers })
+          ),
+          ok: true
+        };
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się pobrać slotów.");
