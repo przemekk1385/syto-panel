@@ -297,6 +297,13 @@ export default {
         .format("YYYY-MM-DD");
     }
   },
+  watch: {
+    dialog(val) {
+      if (!val && this.datePicker) {
+        this.datePicker = false;
+      }
+    }
+  },
   async mounted() {
     const { data: openDays = [] } = await this.slotList();
     const {
