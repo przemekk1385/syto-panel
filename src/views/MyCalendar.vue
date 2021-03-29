@@ -5,12 +5,13 @@
         <h1 class="text-h3">Mój kalendarz</h1>
       </v-col>
     </v-row>
+
     <v-row>
       <v-col>
         <v-toolbar flat tag="div">
           <v-spacer></v-spacer>
-        <v-dialog v-model="dialog" width="auto ">
-          <template v-slot:activator="{ on, attrs }">
+          <v-dialog v-model="dialog" width="auto ">
+            <template v-slot:activator="{ on, attrs }">
               <v-btn
                 color="success"
                 dark
@@ -20,144 +21,144 @@
                 v-on="on"
               >
                 <v-icon dark>mdi-calendar-plus</v-icon>
-            </v-btn>
-          </template>
-          <v-form v-if="dialog" ref="availabilityForm">
-            <v-card>
-              <v-card-title class="headline">
-                Godziny pracy
-              </v-card-title>
-              <v-card-text>
-                <v-row>
-                  <v-col cols="12">
-                    <v-menu
-                      v-model="datePicker"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
+              </v-btn>
+            </template>
+            <v-form v-if="dialog" ref="availabilityForm">
+              <v-card>
+                <v-card-title class="headline">
+                  Godziny pracy
+                </v-card-title>
+                <v-card-text>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-menu
+                        v-model="datePicker"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="auto"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="slot"
+                            label="Data"
+                            prepend-icon="mdi-calendar"
+                            readonly
+                            :rules="[rules.required]"
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
                           v-model="slot"
-                          label="Data"
-                          prepend-icon="mdi-calendar"
-                          readonly
-                          :rules="[rules.required]"
-                          v-bind="attrs"
-                          v-on="on"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        v-model="slot"
-                        first-day-of-week="1"
-                        landscape
-                        locale="pl"
-                        :min="tomorrow"
-                        :show-current="today"
-                        @change="fillAvailabilityForm(slot)"
-                        @input="datePicker = false"
-                      ></v-date-picker>
-                    </v-menu>
-                    <v-menu
-                      v-model="startTimePicker"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
+                          first-day-of-week="1"
+                          landscape
+                          locale="pl"
+                          :min="tomorrow"
+                          :show-current="today"
+                          @change="fillAvailabilityForm(slot)"
+                          @input="datePicker = false"
+                        ></v-date-picker>
+                      </v-menu>
+                      <v-menu
+                        v-model="startTimePicker"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="auto"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="start"
+                            label="Godzina rozpoczęcia"
+                            prepend-icon="mdi-clock-start"
+                            readonly
+                            :rules="[rules.required, rules.not23]"
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-time-picker
+                          v-if="startTimePicker"
                           v-model="start"
-                          label="Godzina rozpoczęcia"
-                          prepend-icon="mdi-clock-start"
-                          readonly
-                          :rules="[rules.required, rules.not23]"
-                          v-bind="attrs"
-                          v-on="on"
-                        ></v-text-field>
-                      </template>
-                      <v-time-picker
-                        v-if="startTimePicker"
-                        v-model="start"
-                        :allowed-minutes="allowedStep"
-                        format="24hr"
-                        landscape
-                        :max="hourBeforeEnd"
-                        @input="startTimePicker = false"
-                      ></v-time-picker>
-                    </v-menu>
-                    <v-menu
-                      v-model="endTimePicker"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
+                          :allowed-minutes="allowedStep"
+                          format="24hr"
+                          landscape
+                          :max="hourBeforeEnd"
+                          @input="startTimePicker = false"
+                        ></v-time-picker>
+                      </v-menu>
+                      <v-menu
+                        v-model="endTimePicker"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="auto"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="end"
+                            label="Godzina zakończenia"
+                            prepend-icon="mdi-clock-end"
+                            readonly
+                            :rules="[rules.required]"
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-time-picker
+                          v-if="endTimePicker"
                           v-model="end"
-                          label="Godzina zakończenia"
-                          prepend-icon="mdi-clock-end"
-                          readonly
-                          :rules="[rules.required]"
-                          v-bind="attrs"
-                          v-on="on"
-                        ></v-text-field>
-                      </template>
-                      <v-time-picker
-                        v-if="endTimePicker"
-                        v-model="end"
-                        :allowed-minutes="allowedStep"
-                        format="24hr"
-                        landscape
-                        :min="hourAfterStart"
-                        @input="endTimePicker = false"
-                      ></v-time-picker>
-                    </v-menu>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  color="primary"
-                  icon
-                  outlined
-                  @click="submitAvailabilityForm"
-                >
+                          :allowed-minutes="allowedStep"
+                          format="24hr"
+                          landscape
+                          :min="hourAfterStart"
+                          @input="endTimePicker = false"
+                        ></v-time-picker>
+                      </v-menu>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="primary"
+                    icon
+                    outlined
+                    @click="submitAvailabilityForm"
+                  >
                     <v-icon class="mx-2">
-                    mdi-send
-                  </v-icon>
-                </v-btn>
-                <v-btn
-                  color="warning"
-                  icon
-                  outlined
-                  @click="resetAvailabilityForm"
-                >
+                      mdi-send
+                    </v-icon>
+                  </v-btn>
+                  <v-btn
+                    color="warning"
+                    icon
+                    outlined
+                    @click="resetAvailabilityForm"
+                  >
                     <v-icon class="mx-2">
-                    mdi-eraser
-                  </v-icon>
-                </v-btn>
-                <v-btn
-                  v-if="id"
-                  color="error"
-                  icon
-                  outlined
-                  @click="deleteAvailabilityPeriod"
-                >
+                      mdi-eraser
+                    </v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-if="id"
+                    color="error"
+                    icon
+                    outlined
+                    @click="deleteAvailabilityPeriod"
+                  >
                     <v-icon class="mx-2">
-                    mdi-trash-can-outline
-                  </v-icon>
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-form>
-        </v-dialog>
+                      mdi-trash-can-outline
+                    </v-icon>
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-form>
+          </v-dialog>
           <v-btn
             color="primary"
             dark
@@ -190,7 +191,6 @@
             locale="pl"
             show-week
             :weekdays="[1, 2, 3, 4, 5, 6, 0]"
-            @click:date="fillAvailabilityForm"
           >
             <template v-slot:day-label="{ date, past, present }">
               <v-btn
@@ -335,6 +335,7 @@ export default {
         return day.format("D");
       }
     },
+
     getSummary(date) {
       let { start, end } = this.availabilityPeriods?.[date] || {};
       start = dayjs(`${date} ${start}`);
@@ -353,6 +354,7 @@ export default {
       this.start = start;
       this.end = end;
       this.slot = date;
+
       this.dialog = true;
     },
     resetAvailabilityForm() {
