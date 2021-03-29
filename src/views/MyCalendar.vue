@@ -158,6 +158,24 @@
             </v-card>
           </v-form>
         </v-dialog>
+          <v-btn
+            color="primary"
+            dark
+            fab
+            class="mx-2"
+            @click="$refs.calendar.prev()"
+          >
+            <v-icon dark>mdi-chevron-left</v-icon>
+          </v-btn>
+          <v-btn
+            color="primary"
+            dark
+            fab
+            class="mx-2"
+            @click="$refs.calendar.next()"
+          >
+            <v-icon dark>mdi-chevron-right</v-icon>
+          </v-btn>
         </v-toolbar>
       </v-col>
     </v-row>
@@ -166,6 +184,8 @@
       <v-col>
         <v-sheet>
           <v-calendar
+            ref="calendar"
+            v-model="value"
             color="primary"
             locale="pl"
             show-week
@@ -242,7 +262,9 @@ export default {
       id: undefined,
       start: undefined,
       end: undefined,
-      slot: undefined
+      slot: undefined,
+
+      value: ""
     };
   },
   computed: {
