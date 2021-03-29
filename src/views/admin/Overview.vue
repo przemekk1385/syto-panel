@@ -13,7 +13,7 @@
           :headers="headers"
           :footer-props="footerProps"
           :items="items"
-          item-key="date"
+          item-key="day"
           pagination.sync="pagination"
           show-expand
         >
@@ -44,27 +44,27 @@
               <template v-slot:activator="{ on, attrs }">
                 <v-avatar color="primary" size="32" v-bind="attrs" v-on="on">
                   <span class="white--text">{{
-                    stationaryHours + cottageHours + 100
+                    stationaryHours + cottageHours
                   }}</span>
                 </v-avatar>
               </template>
               <span>Stacjonarne / Chałupnicze / Razem</span>
             </v-tooltip>
           </template>
-          <template v-slot:expanded-item="{ headers, item: { users } }">
+          <template v-slot:expanded-item="{ headers, item: { workers } }">
             <td :colspan="headers.length">
               <v-chip
-                v-for="(user, i) in users"
+                v-for="(worker, i) in workers"
                 :key="i"
                 class="ma-1"
-                :color="getColor(user.groups)"
+                :color="getColor(worker.groups)"
                 dark
                 small
               >
                 <v-icon left small>
-                  {{ getGroupIcon(user.groups) }}
+                  {{ getGroupIcon(worker.groups) }}
                 </v-icon>
-                {{ user.email }}
+                {{ worker.firstName }} {{ worker.lastName }}
               </v-chip>
             </td>
           </template>
@@ -75,6 +75,8 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+
 export default {
   name: "Overview",
   data: () => ({
@@ -83,11 +85,10 @@ export default {
       itemsPerPageOptions: [20, 50, 100]
     },
 
-    today: "2021-03-03",
     headers: [
       {
         text: "Data",
-        value: "date"
+        value: "day"
       },
       {
         text: "Pracownicy",
@@ -101,75 +102,20 @@ export default {
       },
       { text: "", value: "data-table-expand" }
     ],
-    items: [
-      {
-        date: "2021-03-08",
-        stationaryHours: 8,
-        stationaryWorkers: 1,
-        cottageHours: 10,
-        cottageWorkers: 2,
-        users: [
-          {
-            email: "foo1@bar.baz",
-            groups: ["cottage_worker", "new_employee"]
-          },
-          {
-            email: "foo2@bar.baz",
-            groups: ["cottage_worker"]
-          },
-          {
-            email: "foo3@bar.baz",
-            groups: ["stationary_worker", "new_employee"]
-          }
-        ]
-      },
-      {
-        date: "2021-03-09",
-        stationaryHours: 8,
-        stationaryWorkers: 1,
-        cottageHours: 10,
-        cottageWorkers: 2,
-        users: [
-          {
-            email: "foo1@bar.baz",
-            groups: ["cottage_worker", "new_employee"]
-          },
-          {
-            email: "foo2@bar.baz",
-            groups: ["cottage_worker"]
-          },
-          {
-            email: "foo3@bar.baz",
-            groups: ["stationary_worker", "new_employee"]
-          }
-        ]
-      },
-      {
-        date: "2021-03-10",
-        stationaryHours: 8,
-        stationaryWorkers: 1,
-        cottageHours: 10,
-        cottageWorkers: 2,
-        users: [
-          {
-            email: "foo1@bar.baz",
-            groups: ["cottage_worker", "new_employee"]
-          },
-          {
-            email: "foo2@bar.baz",
-            groups: ["cottage_worker"]
-          },
-          {
-            email: "foo3@bar.baz",
-            groups: ["stationary_worker", "new_employee"]
-          }
-        ]
-      }
-    ]
+    items: []
   }),
   computed: {},
-  mounted() {},
+  async mounted() {
+    const { data: items } = await this.availabilityOverviewList();
+
+    console.log(items);
+
+    this.items = items;
+  },
   methods: {
+    ...mapActions({
+      availabilityOverviewList: "availabilityOverviewList"
+    }),
     getColor(groups) {
       if (groups.indexOf("new_employee") !== -1) {
         return "green";
