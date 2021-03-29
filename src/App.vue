@@ -27,7 +27,7 @@
                 <v-list-item-title>Przegląd</v-list-item-title>
               </v-list-item>
               <v-list-item exact :to="{ name: 'Slots' }">
-                <v-list-item-title>Godziny</v-list-item-title>
+                <v-list-item-title>Dni robocze</v-list-item-title>
               </v-list-item>
               <v-list-item exast :to="{ name: 'Users' }">
                 <v-list-item-title>Pracownicy</v-list-item-title>
