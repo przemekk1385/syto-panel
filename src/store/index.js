@@ -119,6 +119,49 @@ export default new Vuex.Store({
         return { data, ok: false };
       }
     },
+    async availabilityOverviewList({ commit, getters }) {
+      try {
+        const availabilityOverviewPromise = await axios.get(
+          "/api/v1/availability/",
+          getters.headers
+        );
+
+        const { data } = availabilityOverviewPromise;
+        return {
+          data: data.map(
+            ({
+              day,
+              cottage_hours: cottageHours,
+              cottage_workers: cottageWorkers,
+              stationary_hours: stationaryHours,
+              stationary_workers: stationaryWorkers,
+              workers
+            }) => ({
+              day,
+              cottageHours,
+              cottageWorkers,
+              stationaryHours,
+              stationaryWorkers,
+              workers: workers.map(
+                ({ first_name: firstName, last_name: lastName, groups }) => ({
+                  firstName,
+                  lastName,
+                  groups
+                })
+              )
+            })
+          ),
+          ok: true
+        };
+      } catch ({ response: { data, status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się pobrać zestawień.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+        return { data, ok: false };
+      }
+    },
     async availabilityPeriodList({ commit, getters }) {
       try {
         const availabilityPeriodPromise = await axios.get(
