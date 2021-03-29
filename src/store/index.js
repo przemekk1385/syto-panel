@@ -85,9 +85,17 @@ export default new Vuex.Store({
           "/api/v1/user/me/",
           getters.headers
         );
-        const { data } = userMePromise;
-        commit("me", data);
-        return { data, ok: true };
+        const {
+          data: {
+            id,
+            email,
+            first_name: firstName,
+            last_name: lastName,
+            groups
+          }
+        } = userMePromise;
+        commit("me", { id, email, firstName, lastName, groups });
+        return { data: { id, email, firstName, lastName, groups }, ok: true };
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się pobrać danych użytkownika.");
