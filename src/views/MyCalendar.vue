@@ -6,12 +6,20 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col class="text-right">
+      <v-col>
+        <v-toolbar flat tag="div">
+          <v-spacer></v-spacer>
         <v-dialog v-model="dialog" width="auto ">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" outlined large v-bind="attrs" v-on="on">
-              <v-icon class="mr-3" left large>mdi-calendar-plus</v-icon>
-              dodaj godziny
+              <v-btn
+                color="success"
+                dark
+                fab
+                class="mx-2"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon dark>mdi-calendar-plus</v-icon>
             </v-btn>
           </template>
           <v-form v-if="dialog" ref="availabilityForm">
@@ -121,7 +129,7 @@
                   outlined
                   @click="submitAvailabilityForm"
                 >
-                  <v-icon class="mr-1">
+                    <v-icon class="mx-2">
                     mdi-send
                   </v-icon>
                 </v-btn>
@@ -131,7 +139,7 @@
                   outlined
                   @click="resetAvailabilityForm"
                 >
-                  <v-icon class="mr-1">
+                    <v-icon class="mx-2">
                     mdi-eraser
                   </v-icon>
                 </v-btn>
@@ -142,7 +150,7 @@
                   outlined
                   @click="deleteAvailabilityPeriod"
                 >
-                  <v-icon class="mr-1">
+                    <v-icon class="mx-2">
                     mdi-trash-can-outline
                   </v-icon>
                 </v-btn>
@@ -150,6 +158,7 @@
             </v-card>
           </v-form>
         </v-dialog>
+        </v-toolbar>
       </v-col>
     </v-row>
 
