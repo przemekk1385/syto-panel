@@ -146,14 +146,14 @@ export default new Vuex.Store({
           { day, stationary_workers_limit, is_open_for_cottage_workers },
           getters.headers
         );
-        return true;
+        return day;
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się zdefiniować dnia roboczego.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-        return false;
+        return undefined;
       }
     },
     async slotUpdate(
@@ -170,27 +170,27 @@ export default new Vuex.Store({
           { stationary_workers_limit, is_open_for_cottage_workers },
           getters.headers
         );
-        return true;
+        return day;
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się uaktualnić dnia roboczego.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-        return false;
+        return undefined;
       }
     },
     async slotDestroy({ commit, getters }, day) {
       try {
         await axios.delete(`/api/v1/slot/${day}/`, getters.headers);
-        return true;
+        return day;
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się usunąć dnia roboczego.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-        return false;
+        return undefined;
       }
     },
     async availabilityOverviewList({ commit, getters }) {
@@ -254,20 +254,21 @@ export default new Vuex.Store({
     },
     async availabilityPeriodCreate({ commit, getters }, payload) {
       try {
-        const availabilityPeriodPromise = await axios.post(
+        const {
+          data: { id }
+        } = await axios.post(
           "/api/v1/availability/period/",
           payload,
           getters.headers
         );
-        const { data } = availabilityPeriodPromise;
-        return { data, ok: true };
+        return id;
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się zapisać godzin.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-        return { data, ok: false };
+        return undefined;
       }
     },
     async availabilityPeriodUpdate(
@@ -275,20 +276,19 @@ export default new Vuex.Store({
       { id, start, end, slot }
     ) {
       try {
-        const availabilityPeriodPromise = await axios.put(
+        await axios.put(
           `/api/v1/availability/period/${id}/`,
           { start, end, slot },
           getters.headers
         );
-        const { data } = availabilityPeriodPromise;
-        return { data, ok: true };
+        return id;
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się uaktualnić godzin.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-        return { data, ok: false };
+        return undefined;
       }
     },
     async availabilityPeriodDestroy({ commit, getters }, id) {
@@ -297,12 +297,14 @@ export default new Vuex.Store({
           `/api/v1/availability/period/${id}/`,
           getters.headers
         );
+        return id;
       } catch ({ response: { status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się usunąć godzin.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
+        return undefined;
       }
     },
     async login({ commit, dispatch }, { username, password }) {
