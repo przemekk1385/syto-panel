@@ -105,10 +105,12 @@ export default new Vuex.Store({
         return { data, ok: false };
       }
     },
-    async slotList({ commit, getters }) {
+    async slotList({ commit, getters }, extra = "") {
       try {
-        const slotsPromise = await axios.get("/api/v1/slot/", getters.headers);
-        const { data } = slotsPromise;
+        const slotsPromise = await axios.get(
+          `/api/v1/slot/${extra}`,
+          getters.headers
+        );
         return {
           data: data.map(
             ({
