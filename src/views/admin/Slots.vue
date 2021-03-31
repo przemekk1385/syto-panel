@@ -88,7 +88,7 @@
                     </v-icon>
                   </v-btn>
                   <v-btn
-                    v-if="id"
+                    v-if="slots[day]"
                     color="error"
                     icon
                     outlined
@@ -150,7 +150,7 @@
             </template>
             <template v-slot:day="{ date, past }">
               <v-container v-if="slots[date]" class="mt-1">
-                <v-toolbar dense flat>
+                <v-toolbar color="transparent" dense flat tag="div">
                   <v-badge
                     v-if="slots[date].stationaryWorkersLimit"
                     bottom
@@ -205,7 +205,6 @@ export default {
       required: value => !!value || "To pole jest wymagane."
     },
 
-    id: undefined,
     day: undefined,
     stationaryWorkersLimit: undefined,
     isOpenForCottageWorkers: undefined,
@@ -224,13 +223,14 @@ export default {
   },
   watch: {
     dialog(val) {
-      if (!val && this.datePicker) {
+      if (!val) {
         this.datePicker = false;
+        this.resetSlotForm();
       }
     }
   },
   async mounted() {
-    const { data: slots = [] } = await this.slotList();
+    const { data: slots = [] } = await this.slotList("all/");
 
     this.slots = slots.reduce(
       (prev, { id, day, stationaryWorkersLimit, isOpenForCottageWorkers }) =>
@@ -241,7 +241,12 @@ export default {
     );
   },
   methods: {
-    ...mapActions({ slotList: "slotList" }),
+    ...mapActions({
+      slotList: "slotList",
+      slotCreate: "slotCreate",
+      slotUpdate: "slotUpdate",
+      slotDestroy: "slotDestroy"
+    }),
     fixStationaryWorkersLimit() {
       const { stationaryWorkersLimit } = this;
 
@@ -262,10 +267,9 @@ export default {
     },
 
     fillSlotForm(date) {
-      const { id, stationaryWorkersLimit, isOpenForCottageWorkers } =
+      const { stationaryWorkersLimit, isOpenForCottageWorkers } =
         this.slots?.[date] || {};
 
-      this.id = id;
       this.day = date;
       this.stationaryWorkersLimit = stationaryWorkersLimit;
       this.isOpenForCottageWorkers = isOpenForCottageWorkers;
@@ -274,16 +278,37 @@ export default {
     },
     resetSlotForm() {
       this.$refs.slotForm.reset();
-      this.id = undefined;
+      this.day = undefined;
     },
-    submitSlotForm() {
+    async submitSlotForm() {
       if (this.$refs.slotForm.validate()) {
-        const { stationaryWorkersLimit, isOpenForCottageWorkers } = this;
+        const { day, stationaryWorkersLimit, isOpenForCottageWorkers } = this;
 
-        this.slots[this.date] = {
-          stationaryWorkersLimit,
-          isOpenForCottageWorkers
-        };
+        if (
+          (!this.slots[day] &&
+            (await this.slotCreate({
+              day,
+              stationaryWorkersLimit,
+              isOpenForCottageWorkers
+            }))) ||
+          (this.slots[day] &&
+            (await this.slotUpdate({
+              day,
+              stationaryWorkersLimit,
+              isOpenForCottageWorkers
+            })))
+        ) {
+          this.slots[day] = { stationaryWorkersLimit, isOpenForCottageWorkers };
+        }
+
+        this.dialog = false;
+      }
+    },
+    async deleteSlot() {
+      const { day } = this;
+
+      if (this.slots[day] && (await this.slotDestroy(day))) {
+        delete this.slots[day];
 
         this.dialog = false;
       }
