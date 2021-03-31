@@ -364,25 +364,17 @@ export default {
     },
     async submitAvailabilityForm() {
       if (this.$refs.availabilityForm.validate()) {
-        const payload = {
-          start: this.start,
-          end: this.end,
-          slot: this.slot
-        };
-        let r;
+        const { start, end, slot } = this;
+        let id;
 
         if (!this.id) {
-          r = await this.availabilityPeriodCreate(payload);
+          id = await this.availabilityPeriodCreate({ start, end, slot });
         } else {
-          r = await this.availabilityPeriodUpdate(
-            Object.assign(payload, { id: this.id })
-          );
+          id = await this.availabilityPeriodUpdate({ id, start, end, slot });
         }
 
-        const { data: { id, start, end, slot } = {}, ok } = r;
-
-        if (ok) {
-          this.availabilityPeriods[slot] = { id, start, end };
+        if (id) {
+          this.availabilityPeriods[this.slot] = { id, start, end, slot };
         }
 
         this.dialog = false;
