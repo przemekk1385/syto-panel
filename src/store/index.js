@@ -131,6 +131,67 @@ export default new Vuex.Store({
         return { data, ok: false };
       }
     },
+    async slotCreate(
+      { commit, getters },
+      {
+        day,
+        stationaryWorkersLimit: stationary_workers_limit,
+        isOpenForCottageWorkers: is_open_for_cottage_workers
+      }
+    ) {
+      try {
+        await axios.post(
+          "/api/v1/slot/",
+          { day, stationary_workers_limit, is_open_for_cottage_workers },
+          getters.headers
+        );
+        return true;
+      } catch ({ response: { data, status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się zdefiniować dnia roboczego.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+        return false;
+      }
+    },
+    async slotUpdate(
+      { commit, getters },
+      {
+        day,
+        stationaryWorkersLimit: stationary_workers_limit,
+        isOpenForCottageWorkers: is_open_for_cottage_workers
+      }
+    ) {
+      try {
+        await axios.put(
+          `/api/v1/slot/${day}/`,
+          { stationary_workers_limit, is_open_for_cottage_workers },
+          getters.headers
+        );
+        return true;
+      } catch ({ response: { data, status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się uaktualnić dnia roboczego.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+        return false;
+      }
+    },
+    async slotDestroy({ commit, getters }, day) {
+      try {
+        await axios.delete(`/api/v1/slot/${day}/`, getters.headers);
+        return true;
+      } catch ({ response: { data, status } }) {
+        if (status === 400) {
+          commit("errorMessage", "Nie udało się usunąć dnia roboczego.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
+        return false;
+      }
+    },
     async availabilityOverviewList({ commit, getters }) {
       try {
         const availabilityOverviewPromise = await axios.get(
