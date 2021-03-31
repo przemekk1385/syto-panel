@@ -92,7 +92,7 @@ export default new Vuex.Store({
             first_name: firstName,
             last_name: lastName,
             groups
-          }
+          } = {}
         } = userMePromise;
         commit("me", { id, email, firstName, lastName, groups });
         return { data: { id, email, firstName, lastName, groups }, ok: true };
@@ -111,6 +111,7 @@ export default new Vuex.Store({
           `/api/v1/slot/${extra}`,
           getters.headers
         );
+        const { data = [] } = slotsPromise;
         return {
           data: data.map(
             ({
@@ -198,8 +199,7 @@ export default new Vuex.Store({
           "/api/v1/availability/",
           getters.headers
         );
-
-        const { data } = availabilityOverviewPromise;
+        const { data = [] } = availabilityOverviewPromise;
         return {
           data: data.map(
             ({
@@ -241,7 +241,7 @@ export default new Vuex.Store({
           "/api/v1/availability/period/",
           getters.headers
         );
-        const { data } = availabilityPeriodPromise;
+        const { data = {} } = availabilityPeriodPromise;
         return { data, ok: true };
       } catch ({ response: { data, status } }) {
         if (status === 400) {
@@ -311,7 +311,7 @@ export default new Vuex.Store({
           username,
           password
         });
-        const { token } = tokenPromise?.data;
+        const { data: { token } = {} } = tokenPromise;
         commit("token", token);
         dispatch("userMe");
       } catch ({ response: { status } }) {
