@@ -299,8 +299,9 @@ export default {
   },
   watch: {
     dialog(val) {
-      if (!val && this.datePicker) {
+      if (!val) {
         this.datePicker = false;
+        this.resetAvailabilityForm();
       }
     }
   },
