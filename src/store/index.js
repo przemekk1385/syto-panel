@@ -62,11 +62,10 @@ export default new Vuex.Store({
       } catch ({
         response: { data: { email, phone_number: phoneNumber } = {}, status }
       }) {
-        if (status === 400) {
-          commit("errorMessage", "Rejestracja nie powiodła się.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Rejestracja nie powiodła się. Kod błędu ${status}.`
+        );
         return {
           formErrors: {
             email: email || [],
@@ -130,11 +129,10 @@ export default new Vuex.Store({
           }) => ({ id, day, stationaryWorkersLimit, isOpenForCottageWorkers })
         );
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się pobrać slotów.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Nie udało się pobrać slotów. Kod błędu ${status}.`
+        );
         return [];
       }
     },
@@ -154,11 +152,10 @@ export default new Vuex.Store({
         );
         return day;
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się zdefiniować dnia roboczego.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Nie udało się zdefiniować dnia roboczego. Kod błędu ${status}.`
+        );
         return undefined;
       }
     },
@@ -178,11 +175,10 @@ export default new Vuex.Store({
         );
         return day;
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się uaktualnić dnia roboczego.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Nie udało się uaktualnić dnia roboczego. Kod błędu ${status}.`
+        );
         return undefined;
       }
     },
@@ -191,11 +187,10 @@ export default new Vuex.Store({
         await axios.delete(`/api/v1/slot/${day}/`, getters.headers);
         return day;
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się usunąć dnia roboczego.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Nie udało się usunąć dnia roboczego. Kod błędu ${status}.`
+        );
         return undefined;
       }
     },
@@ -230,11 +225,10 @@ export default new Vuex.Store({
           })
         );
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się pobrać zestawień.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Nie udało się pobrać zestawień. Kod błędu ${status}.`
+        );
         return [];
       }
     },
@@ -247,11 +241,10 @@ export default new Vuex.Store({
         const { data = [] } = availabilityPeriodPromise;
         return data;
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się pobrać godzin.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Nie udało się pobrać godzin. Kod błędu ${status}.`
+        );
         return [];
       }
     },
@@ -266,11 +259,10 @@ export default new Vuex.Store({
         );
         return id;
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się zapisać godzin.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Nie udało się zapisać godzin. Kod błędu ${status}.`
+        );
         return undefined;
       }
     },
@@ -286,11 +278,10 @@ export default new Vuex.Store({
         );
         return id;
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się uaktualnić godzin.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Nie udało się uaktualnić godzin. Kod błędu ${status}.`
+        );
         return undefined;
       }
     },
@@ -302,11 +293,10 @@ export default new Vuex.Store({
         );
         return id;
       } catch ({ response: { status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się usunąć godzin.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Nie udało się usunąć godzin. Kod błędu ${status}.`
+        );
         return undefined;
       }
     },
@@ -321,11 +311,10 @@ export default new Vuex.Store({
         const me = dispatch("userMe");
         commit("me", me);
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Logowanie nie powiodło się.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
+        commit(
+          "errorMessage",
+          `Logowanie nie powiodło się. Kod błędu ${status}.`
+        );
       }
     },
     logout({ commit }) {
