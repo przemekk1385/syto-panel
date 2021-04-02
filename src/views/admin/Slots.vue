@@ -65,12 +65,13 @@
                         v-model="stationaryWorkersLimit"
                         label="Limit pracowników stacjonarnych"
                         prepend-icon="mdi-account-hard-hat"
-                        :rules="[rules.positiveInt]"
+                        :rules="[rules.positiveInt, ...extraRules]"
                         @blur="fixStationaryWorkersLimit"
                       ></v-text-field>
                       <v-switch
                         v-model="isOpenForCottageWorkers"
                         label="Otwarty dla chałupników"
+                        :rules="extraRules"
                       ></v-switch>
                     </v-col>
                   </v-row>
@@ -202,8 +203,10 @@ export default {
         !value ||
         Number.parseInt(value) > 0 ||
         "Wymagana liczba całkowita większa od 0.",
-      required: value => !!value || "To pole jest wymagane."
+      required: value => !!value || "To pole jest wymagane.",
+      oneRequired: value => !!value || "Jedno z pól jest wymagane."
     },
+    extraRules: [],
 
     day: undefined,
     stationaryWorkersLimit: undefined,
@@ -212,6 +215,9 @@ export default {
     value: ""
   }),
   computed: {
+    oneRequired() {
+      return !this.stationaryWorkersLimit && !this.isOpenForCottageWorkers;
+    },
     today() {
       return dayjs().format("YYYY-MM-DD");
     },
@@ -227,10 +233,17 @@ export default {
         this.datePicker = false;
         this.resetSlotForm();
       }
+    },
+    oneRequired(val) {
+      if (val) {
+        this.extraRules = [this.rules.oneRequired];
+      } else {
+        this.extraRules = [];
+      }
     }
   },
   async mounted() {
-    const { data: slots = [] } = await this.slotList("all/");
+    const slots = await this.slotList("all/");
 
     this.slots = slots.reduce(
       (prev, { id, day, stationaryWorkersLimit, isOpenForCottageWorkers }) =>
@@ -288,15 +301,15 @@ export default {
 
         if (!this.slots[day]) {
           day = await this.slotCreate({
-              day,
-              stationaryWorkersLimit,
-              isOpenForCottageWorkers
+            day,
+            stationaryWorkersLimit,
+            isOpenForCottageWorkers
           });
         } else {
           day = await this.slotUpdate({
-              day,
-              stationaryWorkersLimit,
-              isOpenForCottageWorkers
+            day,
+            stationaryWorkersLimit,
+            isOpenForCottageWorkers
           });
         }
 
@@ -313,8 +326,8 @@ export default {
         delete this.slots[day];
       }
 
-        this.dialog = false;
-      }
+      this.dialog = false;
     }
+  }
 };
 </script>
