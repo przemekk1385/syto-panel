@@ -46,7 +46,7 @@ export default new Vuex.Store({
       }
     ) {
       try {
-        await axios.post("api/v1/user/", {
+        const userCreatePromise = await axios.post("api/v1/user/", {
           email,
           password,
           first_name,
@@ -57,27 +57,24 @@ export default new Vuex.Store({
           is_new,
           is_cottage
         });
-        return { ok: true };
+        const { data: { id } = {} } = userCreatePromise;
+        return { id };
       } catch ({
         response: { data: { email, phone_number: phoneNumber } = {}, status }
       }) {
         if (status === 400) {
           commit("errorMessage", "Rejestracja nie powiodła się.");
+        } else {
+          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
+        }
           return {
-            data: {
+          formErrors: {
               email: email || [],
               phoneNumber: phoneNumber || []
             },
-            ok: false
-          };
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-          return {
-            data: {},
-            ok: false
+          id: undefined
           };
         }
-      }
     },
     async userMe({ commit, getters }) {
       try {
