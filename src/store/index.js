@@ -91,18 +91,31 @@ export default new Vuex.Store({
             email,
             first_name: firstName,
             last_name: lastName,
-            groups
+            is_active: isActive,
+            groups,
+            date_of_birth: dateOfBirth,
+            phone_number: phoneNumber,
+            address
           } = {}
         } = userMePromise;
-        commit("me", { id, email, firstName, lastName, groups });
-        return { data: { id, email, firstName, lastName, groups }, ok: true };
+        return {
+          id,
+          email,
+          firstName,
+          lastName,
+          isActive,
+          groups,
+          dateOfBirth,
+          phoneNumber,
+          address
+        };
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się pobrać danych użytkownika.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-        return { data, ok: false };
+        return {};
       }
     },
     async slotList({ commit, getters }, extra = "") {
@@ -315,8 +328,9 @@ export default new Vuex.Store({
         });
         const { data: { token } = {} } = tokenPromise;
         commit("token", token);
-        dispatch("userMe");
-      } catch ({ response: { status } }) {
+        const me = dispatch("userMe");
+        commit("me", me);
+      } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Logowanie nie powiodło się.");
         } else {
