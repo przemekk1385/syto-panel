@@ -262,6 +262,7 @@ export default {
         return day.format("D");
       }
     },
+
     getStationaryWorkersLimit(date) {
       return this.slots?.[date]?.stationaryWorkersLimit || "0";
     },
@@ -282,24 +283,25 @@ export default {
     },
     async submitSlotForm() {
       if (this.$refs.slotForm.validate()) {
-        const { day, stationaryWorkersLimit, isOpenForCottageWorkers } = this;
+        const { stationaryWorkersLimit, isOpenForCottageWorkers } = this;
+        let { day } = this;
 
-        if (
-          (!this.slots[day] &&
-            (await this.slotCreate({
+        if (!this.slots[day]) {
+          day = await this.slotCreate({
               day,
               stationaryWorkersLimit,
               isOpenForCottageWorkers
-            }))) ||
-          (this.slots[day] &&
-            (await this.slotUpdate({
+          });
+        } else {
+          day = await this.slotUpdate({
               day,
               stationaryWorkersLimit,
               isOpenForCottageWorkers
-            })))
-        ) {
-          this.slots[day] = { stationaryWorkersLimit, isOpenForCottageWorkers };
+          });
         }
+
+        if (day)
+          this.slots[day] = { stationaryWorkersLimit, isOpenForCottageWorkers };
 
         this.dialog = false;
       }
@@ -309,10 +311,10 @@ export default {
 
       if (this.slots[day] && (await this.slotDestroy(day))) {
         delete this.slots[day];
+      }
 
         this.dialog = false;
       }
     }
-  }
 };
 </script>

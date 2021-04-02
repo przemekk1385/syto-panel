@@ -67,14 +67,14 @@ export default new Vuex.Store({
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-          return {
+        return {
           formErrors: {
-              email: email || [],
-              phoneNumber: phoneNumber || []
-            },
+            email: email || [],
+            phoneNumber: phoneNumber || []
+          },
           id: undefined
-          };
-        }
+        };
+      }
     },
     async userMe({ commit, getters }) {
       try {
@@ -107,12 +107,11 @@ export default new Vuex.Store({
           address
         };
       } catch ({ response: { data, status } }) {
-        if (status === 400) {
-          commit("errorMessage", "Nie udało się pobrać danych użytkownika.");
-        } else {
-          commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
-        }
-        return {};
+        commit(
+          "errorMessage",
+          `Nie udało się pobrać danych użytkownika. Kod błędu ${status}.`
+        );
+        return { id: undefined };
       }
     },
     async slotList({ commit, getters }, extra = "") {
@@ -122,24 +121,21 @@ export default new Vuex.Store({
           getters.headers
         );
         const { data = [] } = slotsPromise;
-        return {
-          data: data.map(
-            ({
-              id,
-              day,
-              stationary_workers_limit: stationaryWorkersLimit,
-              is_open_for_cottage_workers: isOpenForCottageWorkers
-            }) => ({ id, day, stationaryWorkersLimit, isOpenForCottageWorkers })
-          ),
-          ok: true
-        };
+        return data.map(
+          ({
+            id,
+            day,
+            stationary_workers_limit: stationaryWorkersLimit,
+            is_open_for_cottage_workers: isOpenForCottageWorkers
+          }) => ({ id, day, stationaryWorkersLimit, isOpenForCottageWorkers })
+        );
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się pobrać slotów.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-        return { data, ok: false };
+        return [];
       }
     },
     async slotCreate(
@@ -210,39 +206,36 @@ export default new Vuex.Store({
           getters.headers
         );
         const { data = [] } = availabilityOverviewPromise;
-        return {
-          data: data.map(
-            ({
-              day,
-              cottage_hours: cottageHours,
-              cottage_workers: cottageWorkers,
-              stationary_hours: stationaryHours,
-              stationary_workers: stationaryWorkers,
-              workers
-            }) => ({
-              day,
-              cottageHours,
-              cottageWorkers,
-              stationaryHours,
-              stationaryWorkers,
-              workers: workers.map(
-                ({ first_name: firstName, last_name: lastName, groups }) => ({
-                  firstName,
-                  lastName,
-                  groups
-                })
-              )
-            })
-          ),
-          ok: true
-        };
+        return data.map(
+          ({
+            day,
+            cottage_hours: cottageHours,
+            cottage_workers: cottageWorkers,
+            stationary_hours: stationaryHours,
+            stationary_workers: stationaryWorkers,
+            workers
+          }) => ({
+            day,
+            cottageHours,
+            cottageWorkers,
+            stationaryHours,
+            stationaryWorkers,
+            workers: workers.map(
+              ({ first_name: firstName, last_name: lastName, groups }) => ({
+                firstName,
+                lastName,
+                groups
+              })
+            )
+          })
+        );
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się pobrać zestawień.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-        return { data, ok: false };
+        return [];
       }
     },
     async availabilityPeriodList({ commit, getters }) {
@@ -251,15 +244,15 @@ export default new Vuex.Store({
           "/api/v1/availability/period/",
           getters.headers
         );
-        const { data = {} } = availabilityPeriodPromise;
-        return { data, ok: true };
+        const { data = [] } = availabilityPeriodPromise;
+        return data;
       } catch ({ response: { data, status } }) {
         if (status === 400) {
           commit("errorMessage", "Nie udało się pobrać godzin.");
         } else {
           commit("errorMessage", `Nieznany błąd. Kod ${status}.`);
         }
-        return { data, ok: false };
+        return [];
       }
     },
     async availabilityPeriodCreate({ commit, getters }, payload) {

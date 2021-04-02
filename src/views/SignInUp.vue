@@ -414,13 +414,14 @@ export default {
     },
     async submitRegistrationForm() {
       if (this.$refs.registrationForm.validate()) {
-        const { data, ok } = await this.userCreate(this.userPayload);
+        const {
+          formErrors: { email, phoneNumber } = {},
+          id
+        } = await this.userCreate(this.userPayload);
 
-        if (ok) {
+        if (id) {
           this.step = 3;
         } else {
-          const { email, phoneNumber } = data;
-
           this.errorMessages = { email, phoneNumber };
         }
       }

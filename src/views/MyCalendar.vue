@@ -306,10 +306,8 @@ export default {
     }
   },
   async mounted() {
-    const { data: openDays = [] } = await this.slotList();
-    const {
-      data: availabilityPeriods = []
-    } = await this.availabilityPeriodList();
+    const openDays = await this.slotList();
+    const availabilityPeriods = await this.availabilityPeriodList();
 
     this.openDays = openDays.map(item => item.day);
     this.availabilityPeriods = availabilityPeriods.reduce(
@@ -365,24 +363,34 @@ export default {
     async submitAvailabilityForm() {
       if (this.$refs.availabilityForm.validate()) {
         const { start, end, slot } = this;
-        let id;
+        let { id } = this;
 
-        if (!this.id) {
-          id = await this.availabilityPeriodCreate({ start, end, slot });
+        if (!id) {
+          id = await this.availabilityPeriodCreate({
+            start,
+            end,
+            slot
+          });
         } else {
-          id = await this.availabilityPeriodUpdate({ id, start, end, slot });
+          id = await this.availabilityPeriodUpdate({
+            id: this.id,
+            start,
+            end,
+            slot
+          });
         }
 
-        if (id) {
-          this.availabilityPeriods[this.slot] = { id, start, end, slot };
-        }
+        if (id) this.availabilityPeriods[this.slot] = { id, start, end, slot };
 
         this.dialog = false;
       }
     },
     async deleteAvailabilityPeriod() {
-      await this.availabilityPeriodDestroy(this.id);
-      delete this.availabilityPeriods[this.slot];
+      const { id, slot } = this;
+
+      if (id && (await this.availabilityPeriodDestroy(id))) {
+        delete this.availabilityPeriods[slot];
+      }
 
       this.dialog = false;
     }

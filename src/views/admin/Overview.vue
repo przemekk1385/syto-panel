@@ -106,9 +106,7 @@ export default {
   }),
   computed: {},
   async mounted() {
-    const { data: items } = await this.availabilityOverviewList();
-
-    console.log(items);
+    const items = await this.availabilityOverviewList();
 
     this.items = items;
   },
