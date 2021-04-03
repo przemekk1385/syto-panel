@@ -17,7 +17,9 @@ export default new Vuex.Store({
     isCottageWorker: ({ me: { groups } = { groups: [] } }) =>
       groups.indexOf("cottage_worker") !== -1,
     isStationaryWorker: ({ me: { groups } = { groups: [] } }) =>
-      groups.indexOf("stationary_worker") !== -1
+      groups.indexOf("stationary_worker") !== -1,
+    isForeman: ({ me: { groups } = { groups: [] } }) =>
+      groups.indexOf("foreman") !== -1
   },
   mutations: {
     errorMessage(state, message) {
