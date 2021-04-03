@@ -14,9 +14,9 @@ export default new Vuex.Store({
   getters: {
     headers: ({ token }) => ({ headers: { Authorization: `Token ${token}` } }),
     isAuthenticated: ({ token }) => !!token,
-    isCottageWorker: ({ me: { groups } } = { me: { groups: [] } }) =>
+    isCottageWorker: ({ me: { groups } = { groups: [] } }) =>
       groups.indexOf("cottage_worker") !== -1,
-    isStationaryWorker: ({ me: { groups } } = { me: { groups: [] } }) =>
+    isStationaryWorker: ({ me: { groups } = { groups: [] } }) =>
       groups.indexOf("stationary_worker") !== -1
   },
   mutations: {
