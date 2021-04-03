@@ -114,6 +114,7 @@ export default {
     ...mapActions({
       availabilityOverviewList: "availabilityOverviewList"
     }),
+
     getColor(groups) {
       if (groups.indexOf("new_employee") !== -1) {
         return "green";
