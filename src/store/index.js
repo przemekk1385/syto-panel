@@ -362,7 +362,7 @@ export default new Vuex.Store({
         return undefined;
       }
     },
-    async login({ commit, dispatch }, { username, password }) {
+    async login({ commit, dispatch, getters }, { username, password }) {
       try {
         const tokenPromise = await axios.post("/api-token-auth/", {
           username,
@@ -370,13 +370,16 @@ export default new Vuex.Store({
         });
         const { data: { token } = {} } = tokenPromise;
         commit("token", token);
-        const me = dispatch("userMe");
-        commit("me", me);
       } catch ({ response: { data, status } }) {
         commit(
           "errorMessage",
           `Logowanie nie powiodło się. Kod błędu ${status}.`
         );
+      }
+
+      if (getters.isAuthenticated) {
+        const me = await dispatch("userMe");
+        commit("me", me);
       }
     },
     logout({ commit }) {
