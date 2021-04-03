@@ -31,6 +31,44 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    async userList({ commit, getters }) {
+      try {
+        const userListPromise = await axios.get(
+          "/api/v1/user/",
+          getters.headers
+        );
+        const { data = [] } = userListPromise;
+        return data.map(
+          ({
+            id,
+            email,
+            first_name: firstName,
+            last_name: lastName,
+            is_active: isActive,
+            groups,
+            date_of_birth: dateOfBirth,
+            phone_number: phoneNumber,
+            address
+          }) => ({
+            id,
+            email,
+            firstName,
+            lastName,
+            isActive,
+            groups,
+            dateOfBirth,
+            phoneNumber,
+            address
+          })
+        );
+      } catch ({ response: { data, status } }) {
+        commit(
+          "errorMessage",
+          `Nie udało się pobrać użytkowników. Kod błędu ${status}.`
+        );
+        return [];
+      }
+    },
     async userCreate(
       { commit },
       {
@@ -110,6 +148,30 @@ export default new Vuex.Store({
           "errorMessage",
           `Nie udało się pobrać danych użytkownika. Kod błędu ${status}.`
         );
+        return { id: undefined };
+      }
+    },
+    async userToggleIsActive({ commit, getters, state }, id) {
+      try {
+        const userTogglePromise = await axios.get(
+          `/api/v1/user/${id}/toggle_is_active/`,
+          getters.headers
+        );
+        const { data: { is_active: isActive } = {} } = userTogglePromise;
+        return { id, isActive };
+      } catch ({ response: { data, status } }) {
+        const { me: { isActive } = {} } = state;
+        if (isActive) {
+          commit(
+            "errorMessage",
+            `Nie udało się dezaktywować użytkownika. Kod błędu ${status}.`
+          );
+        } else {
+          commit(
+            "errorMessage",
+            `Nie udało się aktywować użytkownika. Kod błędu ${status}.`
+          );
+        }
         return { id: undefined };
       }
     },
