@@ -15,7 +15,7 @@
             Mój kalendarz
           </v-btn>
 
-          <v-menu>
+          <v-menu v-if="isForeman">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon v-bind="attrs" v-on="on">
                 <v-icon>mdi-cogs</v-icon>
@@ -64,7 +64,10 @@ import { mapActions, mapGetters } from "vuex";
 export default {
   data: () => ({}),
   computed: {
-    ...mapGetters({ isAuthenticated: "isAuthenticated" }),
+    ...mapGetters({
+      isAuthenticated: "isAuthenticated",
+      isForeman: "isForeman"
+    }),
     errorMessage() {
       return this.$store.state.errorMessage;
     },
