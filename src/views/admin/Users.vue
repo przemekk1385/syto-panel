@@ -20,31 +20,16 @@
               {{ icon }}
             </v-icon>
           </template>
-          <template v-slot:[`item.isActive`]="{ item }">
+          <template
+            v-slot:[`item.isActive`]="{ index, item: { id, isActive } }"
+          >
             <v-simple-checkbox
-              v-model="item.isActive"
+              v-if="!isMe(id)"
+              :value="isActive"
               :ripple="false"
-            ></v-simple-checkbox>
-          </template>
-
-          <!--
-          <template v-slot:[`item.actions`]="{ item: { id, isActive } }">
-            <v-btn class="mx-2" icon @click="toggleIsActive(id)">
-              <v-icon v-if="isActive" small>
-                mdi-checkbox-blank
-              </v-icon>
-              <v-icon v-else color="success" small>
-                mdi-checkbox-marked
-              </v-icon>
-            </v-btn>
-          </template>
-
-          <template v-slot:no-data>
-            <v-btn color="primary" @click="initialize">
-              Reset
-            </v-btn>
-          </template>
-          //-->
+              @input="performToggleIsActive(index)"
+            ></v-simple-checkbox> </template
+          >x
         </v-data-table>
       </v-col>
     </v-row>
@@ -52,15 +37,15 @@
 </template>
 
 <script>
+import { mapActions, mapState } from "vuex";
+
 export default {
   name: "Users",
   data: () => ({
-    expanded: [],
     footerProps: {
       itemsPerPageOptions: [20, 50, 100]
     },
 
-    today: "2021-03-03",
     headers: [
       {
         text: "Imię",
@@ -99,45 +84,30 @@ export default {
         value: "isActive"
       }
     ],
-    items: [
-      {
-        id: 1,
-        firstName: "Foo",
-        lastName: "Bar",
-        email: "foo@bar.baz",
-        dateOfBirth: "2020-01-01",
-        phoneNumber: "+48 666 666 666",
-        address: "Foo Foo Foo, Bar Bar",
-        groups: ["cottage_worker", "new_employee"],
-        isActive: true
-      },
-      {
-        id: 2,
-        firstName: "Foo",
-        lastName: "Bar",
-        email: "foo@bar.baz",
-        dateOfBirth: "2020-01-01",
-        phoneNumber: "+48 666 666 666",
-        address: "Foo Foo Foo, Bar Bar",
-        groups: ["stationary_worker", "new_employee", "foreman"],
-        isActive: false
-      },
-      {
-        id: 3,
-        firstName: "Foo",
-        lastName: "Bar",
-        email: "foo@bar.baz",
-        dateOfBirth: "2020-01-01",
-        phoneNumber: "+48 666 666 666",
-        address: "Foo Foo Foo, Bar Bar",
-        groups: ["cottage_worker", "new_employee"],
-        isActive: true
-      }
-    ]
+    items: []
   }),
-  computed: {},
-  mounted() {},
+  computed: {
+    ...mapState(["me"])
+  },
+  async mounted() {
+    const items = await this.userList();
+    this.items = items;
+  },
   methods: {
+    ...mapActions({
+      userList: "userList",
+      userToggleIsActive: "userToggleIsActive"
+    }),
+
+    async performToggleIsActive(i) {
+      const { id } = this.items?.[i] || {};
+      const { isActive } = await this.userToggleIsActive(id);
+
+      if (isActive || (!isActive && isActive !== undefined)) {
+        this.items[i].isActive = !this.items[i].isActive;
+      }
+    },
+
     getGroupsIcons(groups) {
       const icons = {
         foreman: "mdi-cog-outline",
@@ -147,9 +117,10 @@ export default {
       };
       return groups.map(group => icons[group]);
     },
-    toggleIsActive(id) {
-      const i = this.items.map(({ id }) => id).indexOf(id);
-      this.items[i].isActive = !this.items[i].isActive;
+    isMe(id) {
+      const { id: meId } = this.me;
+
+      return meId === id;
     }
   }
 };
