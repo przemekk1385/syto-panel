@@ -364,6 +364,29 @@ export default new Vuex.Store({
         return undefined;
       }
     },
+    async availabilityPeriodAll({ commit, getters }) {
+      try {
+        const availabilityPeriodPromise = await axios.get(
+          "/api/v1/availability/period/all/",
+          getters.headers
+        );
+        const { data = [] } = availabilityPeriodPromise;
+        return data.map(
+          ({
+            start,
+            end,
+            slot,
+            worker: { first_name: firstName, last_name: lastName, groups }
+          }) => ({ start, end, slot, worker: { firstName, lastName, groups } })
+        );
+      } catch ({ response: { data, status } }) {
+        commit(
+          "errorMessage",
+          `Nie udało się pobrać godzin. Kod błędu ${status}.`
+        );
+        return [];
+      }
+    },
     async login({ commit, dispatch, getters }, { username, password }) {
       try {
         const tokenPromise = await axios.post("/api-token-auth/", {
