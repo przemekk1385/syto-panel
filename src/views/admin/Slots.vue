@@ -179,15 +179,14 @@
 </template>
 
 <script>
-require("dayjs/locale/pl");
-
 import { mapActions } from "vuex";
 
 var dayjs = require("dayjs");
 var duration = require("dayjs/plugin/duration");
 
-dayjs.locale("pl");
+require("dayjs/locale/pl");
 dayjs.extend(duration);
+dayjs.locale("pl");
 
 export default {
   name: "Slots",
@@ -199,14 +198,13 @@ export default {
     datePicker: false,
 
     rules: {
+      mayBeRequired: value => !!value || "To pole może być wymagane.",
       positiveInt: value =>
         !value ||
         Number.parseInt(value) > 0 ||
         "Wymagana liczba całkowita większa od 0.",
-      required: value => !!value || "To pole jest wymagane.",
-      oneRequired: value => !!value || "Jedno z pól jest wymagane."
+      required: value => !!value || "To pole jest wymagane."
     },
-    extraRules: [],
 
     day: undefined,
     stationaryWorkersLimit: undefined,
@@ -215,8 +213,12 @@ export default {
     value: ""
   }),
   computed: {
-    oneRequired() {
-      return !this.stationaryWorkersLimit && !this.isOpenForCottageWorkers;
+    extraRules() {
+      if (!this.stationaryWorkersLimit && !this.isOpenForCottageWorkers) {
+        return [this.rules.mayBeRequired];
+      } else {
+        return [];
+      }
     },
     today() {
       return dayjs().format("YYYY-MM-DD");
@@ -233,13 +235,6 @@ export default {
         this.datePicker = false;
         this.resetSlotForm();
       }
-    },
-    oneRequired(val) {
-      if (val) {
-        this.extraRules = [this.rules.oneRequired];
-      } else {
-        this.extraRules = [];
-      }
     }
   },
   async mounted() {
@@ -254,12 +249,6 @@ export default {
     );
   },
   methods: {
-    ...mapActions({
-      slotList: "slotList",
-      slotCreate: "slotCreate",
-      slotUpdate: "slotUpdate",
-      slotDestroy: "slotDestroy"
-    }),
     fixStationaryWorkersLimit() {
       const { stationaryWorkersLimit } = this;
 
@@ -275,25 +264,17 @@ export default {
         return day.format("D");
       }
     },
-
     getStationaryWorkersLimit(date) {
       return this.slots?.[date]?.stationaryWorkersLimit || "0";
     },
 
-    fillSlotForm(date) {
-      const { stationaryWorkersLimit, isOpenForCottageWorkers } =
-        this.slots?.[date] || {};
+    ...mapActions({
+      slotList: "slotList",
+      slotCreate: "slotCreate",
+      slotUpdate: "slotUpdate",
+      slotDestroy: "slotDestroy"
+    }),
 
-      this.day = date;
-      this.stationaryWorkersLimit = stationaryWorkersLimit;
-      this.isOpenForCottageWorkers = isOpenForCottageWorkers;
-
-      this.dialog = true;
-    },
-    resetSlotForm() {
-      this.$refs.slotForm.reset();
-      this.day = undefined;
-    },
     async submitSlotForm() {
       if (this.$refs.slotForm.validate()) {
         const { stationaryWorkersLimit, isOpenForCottageWorkers } = this;
@@ -327,6 +308,21 @@ export default {
       }
 
       this.dialog = false;
+    },
+
+    fillSlotForm(date) {
+      const { stationaryWorkersLimit, isOpenForCottageWorkers } =
+        this.slots?.[date] || {};
+
+      this.day = date;
+      this.stationaryWorkersLimit = stationaryWorkersLimit;
+      this.isOpenForCottageWorkers = isOpenForCottageWorkers;
+
+      this.dialog = true;
+    },
+    resetSlotForm() {
+      this.$refs.slotForm.reset();
+      this.day = undefined;
     }
   }
 };
