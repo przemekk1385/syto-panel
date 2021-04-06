@@ -9,7 +9,7 @@
     <v-row>
       <v-col>
         <apexchart
-          :height="height"
+          height="100%"
           :options="chartOptions"
           :series="series"
           type="rangeBar"
@@ -22,8 +22,7 @@
 
 <script>
 import { mapActions } from "vuex";
-
-// import colors from "vuetify/lib/util/colors";
+import colors from "vuetify/lib/util/colors";
 
 import VueApexCharts from "vue-apexcharts";
 var pl = require("apexcharts/dist/locales/pl.json");
@@ -44,27 +43,13 @@ export default {
         locales: [pl],
         type: "rangeBar"
       },
+      colors: [colors.blue.darken2],
       plotOptions: {
         bar: {
           horizontal: true,
-          // distributed: true,
           dataLabels: {
             hideOverflowingLabels: true
           }
-        }
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: function(val /*, opts*/) {
-          // var label = opts.w.globals.labels[opts.dataPointIndex];
-          var a = dayjs(val[0]);
-          var b = dayjs(val[1]);
-          var diff = b.diff(a, "hours");
-          // return `${label}: ${diff} godz.`;
-          return `${diff} godz.`;
-        },
-        style: {
-          colors: ["#f3f4f5", "#fff"]
         }
       },
       tooltip: {
@@ -77,26 +62,10 @@ export default {
         labels: {
           datetimeUTC: false
         }
-      },
-      // yaxis: {
-      //   show: false
-      // },
-      grid: {
-        row: {
-          colors: ["#f3f4f5", "#fff"],
-          opacity: 1
-        }
       }
     }
   }),
-  computed: {
-    height() {
-      return 65 + this.workersCount * 48;
-    },
-    workersCount() {
-      return [...new Set(this.series[0].data.map(({ x }) => x))].length;
-    }
-  },
+  computed: {},
   async mounted() {
     const data = await this.availabilityPeriodAll();
 
