@@ -23,6 +23,9 @@
             </template>
 
             <v-list>
+              <v-list-item exact :to="{ name: 'Timetable' }">
+                <v-list-item-title>Grafik</v-list-item-title>
+              </v-list-item>
               <v-list-item exact :to="{ name: 'Overview' }">
                 <v-list-item-title>Przegląd</v-list-item-title>
               </v-list-item>
