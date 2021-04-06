@@ -75,7 +75,7 @@
                             label="Godzina rozpoczęcia"
                             prepend-icon="mdi-clock-start"
                             readonly
-                            :rules="[rules.required, rules.not23]"
+                            :rules="[rules.required, ...extraRules]"
                             v-bind="attrs"
                             v-on="on"
                           ></v-text-field>
@@ -83,10 +83,9 @@
                         <v-time-picker
                           v-if="startTimePicker"
                           v-model="start"
-                          :allowed-minutes="allowedStep"
+                          :allowed-minutes="getTimePickerSteps"
                           format="24hr"
                           landscape
-                          :max="hourBeforeEnd"
                           @input="startTimePicker = false"
                         ></v-time-picker>
                       </v-menu>
@@ -104,7 +103,7 @@
                             label="Godzina zakończenia"
                             prepend-icon="mdi-clock-end"
                             readonly
-                            :rules="[rules.required]"
+                            :rules="[rules.required, ...extraRules]"
                             v-bind="attrs"
                             v-on="on"
                           ></v-text-field>
@@ -112,10 +111,9 @@
                         <v-time-picker
                           v-if="endTimePicker"
                           v-model="end"
-                          :allowed-minutes="allowedStep"
+                          :allowed-minutes="getTimePickerSteps"
                           format="24hr"
                           landscape
-                          :min="hourAfterStart"
                           @input="endTimePicker = false"
                         ></v-time-picker>
                       </v-menu>
@@ -216,7 +214,7 @@
                       dark
                       rounded
                     >
-                      {{ getSummary(date) }}
+                      {{ printSummary(date) }}
                     </v-sheet>
                   </v-col>
                 </v-row>
@@ -230,15 +228,14 @@
 </template>
 
 <script>
-require("dayjs/locale/pl");
-
 import { mapActions } from "vuex";
 
 var dayjs = require("dayjs");
 var duration = require("dayjs/plugin/duration");
 
-dayjs.locale("pl");
+require("dayjs/locale/pl");
 dayjs.extend(duration);
+dayjs.locale("pl");
 
 export default {
   name: "MyCalendar",
@@ -254,9 +251,7 @@ export default {
       endTimePicker: false,
 
       rules: {
-        required: value => !!value || "To pole jest wymagane.",
-        not23: value =>
-          value?.split(":")?.[0] !== "23" || "Niedozwolona godzina."
+        required: value => !!value || "To pole jest wymagane."
       },
 
       id: undefined,
@@ -268,26 +263,41 @@ export default {
     };
   },
   computed: {
-    hourAfterStart() {
-      if (this.start) {
-        const hourAfter = dayjs(`${this.slot || this.today} ${this.start}`).add(
-          dayjs.duration({ hours: 1 })
-        );
-        return hourAfter.format("HH:mm");
+    extraRules() {
+      if (this.start && this.end) {
+        return [this.exceededNumberOfHours, this.notFullNumberOfHours];
       } else {
-        return undefined;
+        return [];
       }
     },
-    hourBeforeEnd() {
-      if (this.end) {
-        const hourBefore = dayjs(
-          `${this.slot || this.today} ${this.end}`
-        ).subtract(dayjs.duration({ hours: 1 }));
-        return hourBefore.format("HH:mm");
-      } else {
-        return undefined;
+
+    workingMinutes() {
+      const start = dayjs(`${this.slot || this.today} ${this.start}`);
+      const end = dayjs(`${this.slot || this.today} ${this.end}`);
+
+      let diff = end.diff(start, "minutes");
+      if (diff < 0) {
+        diff += 24 * 60;
       }
+
+      return diff;
     },
+    exceededNumberOfHours() {
+      let diff = this.workingMinutes;
+
+      return (
+        Math.floor(diff / 60) <= 16 ||
+        "Maksymalna dozwolona liczba godzin to 16."
+      );
+    },
+    notFullNumberOfHours() {
+      const diff = this.workingMinutes;
+
+      return (
+        (diff && !(diff % 60)) || "Dozwolona jest jedynie pełna liczba godzin."
+      );
+    },
+
     today() {
       return dayjs().format("YYYY-MM-DD");
     },
@@ -301,6 +311,9 @@ export default {
     dialog(val) {
       if (!val) {
         this.datePicker = false;
+        this.startTimePicker = false;
+        this.endTimePicker = false;
+
         this.resetAvailabilityForm();
       }
     }
@@ -317,14 +330,9 @@ export default {
     );
   },
   methods: {
-    ...mapActions({
-      slotList: "slotList",
-      availabilityPeriodList: "availabilityPeriodList",
-      availabilityPeriodCreate: "availabilityPeriodCreate",
-      availabilityPeriodUpdate: "availabilityPeriodUpdate",
-      availabilityPeriodDestroy: "availabilityPeriodDestroy"
-    }),
-    allowedStep: m => m % 5 === 0,
+    getTimePickerSteps(m) {
+      return m % 5 === 0;
+    },
 
     formatDate: date => {
       const day = dayjs(date);
@@ -334,11 +342,14 @@ export default {
         return day.format("D");
       }
     },
-
-    getSummary(date) {
+    printSummary(date) {
       let { start, end } = this.availabilityPeriods?.[date] || {};
       start = dayjs(`${date} ${start}`);
       end = dayjs(`${date} ${end}`);
+
+      if (start > end) {
+        end = end.add(dayjs.duration({ days: 1 }));
+      }
 
       return `${start.format("HH:mm")}-${end.format("HH:mm")} ${end.diff(
         start,
@@ -346,20 +357,14 @@ export default {
       )} godz.`;
     },
 
-    fillAvailabilityForm(date) {
-      const { id, start, end } = this.availabilityPeriods?.[date] || {};
+    ...mapActions({
+      slotList: "slotList",
+      availabilityPeriodList: "availabilityPeriodList",
+      availabilityPeriodCreate: "availabilityPeriodCreate",
+      availabilityPeriodUpdate: "availabilityPeriodUpdate",
+      availabilityPeriodDestroy: "availabilityPeriodDestroy"
+    }),
 
-      this.id = id;
-      this.start = start;
-      this.end = end;
-      this.slot = date;
-
-      this.dialog = true;
-    },
-    resetAvailabilityForm() {
-      this.$refs.availabilityForm.reset();
-      this.id = undefined;
-    },
     async submitAvailabilityForm() {
       if (this.$refs.availabilityForm.validate()) {
         const { start, end, slot } = this;
@@ -393,6 +398,21 @@ export default {
       }
 
       this.dialog = false;
+    },
+
+    fillAvailabilityForm(date) {
+      const { id, start, end } = this.availabilityPeriods?.[date] || {};
+
+      this.id = id;
+      this.start = start;
+      this.end = end;
+      this.slot = date;
+
+      this.dialog = true;
+    },
+    resetAvailabilityForm() {
+      this.$refs.availabilityForm.reset();
+      this.id = undefined;
     }
   }
 };
