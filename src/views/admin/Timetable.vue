@@ -39,6 +39,17 @@ export default {
     series: [{ data: [] }],
     chartOptions: {
       chart: {
+        toolbar: {
+          tools: {
+            download: false,
+            selection: true,
+            zoom: true,
+            zoomin: true,
+            zoomout: true,
+            pan: true,
+            reset: false
+          }
+        },
         defaultLocale: "pl",
         locales: [pl],
         type: "rangeBar"
