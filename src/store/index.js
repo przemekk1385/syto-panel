@@ -3,6 +3,13 @@ import Vuex from "vuex";
 
 import axios from "axios";
 
+var dayjs = require("dayjs");
+var duration = require("dayjs/plugin/duration");
+
+require("dayjs/locale/pl");
+dayjs.extend(duration);
+dayjs.locale("pl");
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -303,7 +310,11 @@ export default new Vuex.Store({
           getters.headers
         );
         const { data = [] } = availabilityPeriodPromise;
-        return data;
+        return data.map(({ slot, start, end }) => ({
+          start: start.split(" ")?.[1],
+          end: end.split(" ")?.[1],
+          slot
+        }));
       } catch ({ response: { data, status } }) {
         commit(
           "errorMessage",
@@ -313,12 +324,22 @@ export default new Vuex.Store({
       }
     },
     async availabilityPeriodCreate({ commit, getters }, payload) {
+      const { slot } = payload;
+      const start = dayjs(`${slot} ${payload.start}`);
+      let end = dayjs(`${slot} ${payload.end}`);
+
+      if (start > end) end = end.add(dayjs.duration({ days: 1 }));
+
       try {
         const {
           data: { id }
         } = await axios.post(
           "/api/v1/availability/period/",
-          payload,
+          {
+            start: start.format("YYYY-MM-DD HH:mm"),
+            end: end.format("YYYY-MM-DD HH:mm"),
+            slot
+          },
           getters.headers
         );
         return id;
@@ -330,14 +351,21 @@ export default new Vuex.Store({
         return undefined;
       }
     },
-    async availabilityPeriodUpdate(
-      { commit, getters },
-      { id, start, end, slot }
-    ) {
+    async availabilityPeriodUpdate({ commit, getters }, payload) {
+      const { id, slot } = payload;
+      const start = dayjs(`${slot} ${payload.start}`);
+      let end = dayjs(`${slot} ${payload.end}`);
+
+      if (start > end) end = end.add(dayjs.duration({ days: 1 }));
+
       try {
         await axios.put(
           `/api/v1/availability/period/${id}/`,
-          { start, end, slot },
+          {
+            start: start.format("YYYY-MM-DD HH:mm"),
+            end: end.format("YYYY-MM-DD HH:mm"),
+            slot
+          },
           getters.headers
         );
         return id;
@@ -377,7 +405,12 @@ export default new Vuex.Store({
             end,
             slot,
             worker: { first_name: firstName, last_name: lastName, groups }
-          }) => ({ start, end, slot, worker: { firstName, lastName, groups } })
+          }) => ({
+            start: start.split(" ")?.[1],
+            end: end.split(" ")?.[1],
+            slot,
+            worker: { firstName, lastName, groups }
+          })
         );
       } catch ({ response: { data, status } }) {
         commit(
