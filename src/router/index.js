@@ -8,8 +8,26 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
+    redirect: () => {
+      const { getters: { isCottageWorker, isStationaryWorker } = {} } = store;
+
+      if (!isCottageWorker && isStationaryWorker) return "/stationary";
+      else if (isCottageWorker && !isStationaryWorker) return "/cottage";
+    },
     name: "MyCalendar",
-    component: () => import("../views/MyCalendar.vue")
+    component: () => import("../views/MyCalendar.vue"),
+    children: [
+      {
+        path: "stationary",
+        name: "StationaryCalendar",
+        component: () => import("../views/StationaryCalendar.vue")
+      },
+      {
+        path: "cottage",
+        name: "CottageCalendar",
+        component: () => import("../views/CottageCalendar.vue")
+      }
+    ]
   },
   {
     path: "/login",
