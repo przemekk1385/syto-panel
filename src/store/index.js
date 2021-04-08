@@ -186,11 +186,11 @@ export default new Vuex.Store({
     },
     async slotList({ commit, getters }, extra = "") {
       try {
-        const slotsPromise = await axios.get(
+        const slotsListPromise = await axios.get(
           `/api/v1/slot/${extra}`,
           getters.headers
         );
-        const { data = [] } = slotsPromise;
+        const { data = [] } = slotsListPromise;
         return data.map(
           ({
             id,
@@ -267,11 +267,11 @@ export default new Vuex.Store({
     },
     async availabilityOverviewList({ commit, getters }) {
       try {
-        const availabilityOverviewPromise = await axios.get(
+        const availabilityOverviewListPromise = await axios.get(
           "/api/v1/availability/",
           getters.headers
         );
-        const { data = [] } = availabilityOverviewPromise;
+        const { data = [] } = availabilityOverviewListPromise;
         return data.map(
           ({
             day,
@@ -305,11 +305,11 @@ export default new Vuex.Store({
     },
     async availabilityPeriodList({ commit, getters }) {
       try {
-        const availabilityPeriodPromise = await axios.get(
+        const availabilityPeriodListPromise = await axios.get(
           "/api/v1/availability/period/",
           getters.headers
         );
-        const { data = [] } = availabilityPeriodPromise;
+        const { data = [] } = availabilityPeriodListPromise;
         return data.map(({ slot, start, end }) => ({
           start: start.split(" ")?.[1],
           end: end.split(" ")?.[1],
@@ -331,9 +331,7 @@ export default new Vuex.Store({
       if (start > end) end = end.add(dayjs.duration({ days: 1 }));
 
       try {
-        const {
-          data: { id }
-        } = await axios.post(
+        const availabilityPeriodCreatePromise = await axios.post(
           "/api/v1/availability/period/",
           {
             start: start.format("YYYY-MM-DD HH:mm"),
@@ -342,6 +340,7 @@ export default new Vuex.Store({
           },
           getters.headers
         );
+        const { data: { id } = {} } = availabilityPeriodCreatePromise;
         return id;
       } catch ({ response: { data, status } }) {
         commit(
@@ -394,11 +393,11 @@ export default new Vuex.Store({
     },
     async availabilityPeriodAll({ commit, getters }) {
       try {
-        const availabilityPeriodPromise = await axios.get(
+        const availabilityPeriodAllPromise = await axios.get(
           "/api/v1/availability/period/all/",
           getters.headers
         );
-        const { data = [] } = availabilityPeriodPromise;
+        const { data = [] } = availabilityPeriodAllPromise;
         return data.map(
           ({
             start,
