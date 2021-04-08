@@ -419,6 +419,75 @@ export default new Vuex.Store({
         return [];
       }
     },
+    async availabilityHoursList({ commit, getters }) {
+      try {
+        const availabilityHoursListPromise = await axios.get(
+          "/api/v1/availability/hours/",
+          getters.headers
+        );
+        const { data = [] } = availabilityHoursListPromise;
+        return data;
+      } catch ({ response: { data, status } }) {
+        commit(
+          "errorMessage",
+          `Nie udało się pobrać godzin. Kod błędu ${status}.`
+        );
+        return [];
+      }
+    },
+    async availabilityHoursCreate({ commit, getters }, payload) {
+      try {
+        const availabilityHoursCreatePromise = await axios.post(
+          "/api/v1/availability/hours/",
+          payload,
+          getters.headers
+        );
+        const { data: { id } = {} } = availabilityHoursCreatePromise;
+        return id;
+      } catch ({ response: { data, status } }) {
+        commit(
+          "errorMessage",
+          `Nie udało się zapisać godzin. Kod błędu ${status}.`
+        );
+        return undefined;
+      }
+    },
+    async availabilityHoursUpdate({ commit, getters }, payload) {
+      const { id, hours, slot } = payload;
+
+      try {
+        await axios.put(
+          `/api/v1/availability/hours/${id}/`,
+          {
+            hours,
+            slot
+          },
+          getters.headers
+        );
+        return id;
+      } catch ({ response: { data, status } }) {
+        commit(
+          "errorMessage",
+          `Nie udało się uaktualnić godzin. Kod błędu ${status}.`
+        );
+        return undefined;
+      }
+    },
+    async availabilityHoursDestroy({ commit, getters }, id) {
+      try {
+        await axios.delete(
+          `/api/v1/availability/hours/${id}/`,
+          getters.headers
+        );
+        return id;
+      } catch ({ response: { status } }) {
+        commit(
+          "errorMessage",
+          `Nie udało się usunąć godzin. Kod błędu ${status}.`
+        );
+        return undefined;
+      }
+    },
     async login({ commit, dispatch, getters }, { username, password }) {
       try {
         const tokenPromise = await axios.post("/api-token-auth/", {
