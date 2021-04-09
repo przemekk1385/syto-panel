@@ -10,7 +10,7 @@
 
         <v-spacer></v-spacer>
 
-        <v-toolbar-items>
+        <v-toolbar-items v-if="isAuthenticated">
           <v-btn exact text :to="{ name: 'MyCalendar' }">
             Mój kalendarz
           </v-btn>
