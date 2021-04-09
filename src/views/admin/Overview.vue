@@ -25,10 +25,19 @@
             {{ stationaryWorkers }} / {{ cottageWorkers }} /
             <v-tooltip left>
               <template v-slot:activator="{ on, attrs }">
-                <v-avatar color="primary" size="32" v-bind="attrs" v-on="on">
-                  <span class="white--text">{{
-                    stationaryWorkers + cottageWorkers
-                  }}</span>
+                <v-avatar
+                  :color="
+                    stationaryWorkers || cottageWorkers
+                      ? 'primary'
+                      : 'secondary'
+                  "
+                  size="32"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <span class="white--text">
+                    {{ stationaryWorkers + cottageWorkers }}</span
+                  >
                 </v-avatar>
               </template>
               <span>Stacjonarni / Chałupnicy / Razem</span>
@@ -42,7 +51,14 @@
             {{ stationaryHours }} / {{ cottageHours }} /
             <v-tooltip left>
               <template v-slot:activator="{ on, attrs }">
-                <v-avatar color="primary" size="32" v-bind="attrs" v-on="on">
+                <v-avatar
+                  :color="
+                    stationaryHours || cottageHours ? 'primary' : 'secondary'
+                  "
+                  size="32"
+                  v-bind="attrs"
+                  v-on="on"
+                >
                   <span class="white--text">{{
                     stationaryHours + cottageHours
                   }}</span>
@@ -66,6 +82,9 @@
                 </v-icon>
                 {{ worker.firstName }} {{ worker.lastName }}
               </v-chip>
+              <span class="body-2 warning--text" v-if="!workers.length"
+                >Brak zapisanych pracowników.</span
+              >
             </td>
           </template>
         </v-data-table>

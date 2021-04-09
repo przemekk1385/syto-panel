@@ -9,12 +9,14 @@
     <v-row>
       <v-col>
         <apexchart
+          v-if="hasChartData"
           height="100%"
           :options="chartOptions"
           :series="series"
           type="rangeBar"
         >
         </apexchart>
+        <span v-else>Brak danych dla wykresu.</span>
       </v-col>
     </v-row>
   </v-container>
@@ -76,7 +78,11 @@ export default {
       }
     }
   }),
-  computed: {},
+  computed: {
+    hasChartData() {
+      return Boolean(this.series[0].data.length);
+    }
+  },
   async mounted() {
     const data = await this.availabilityPeriodAll();
 
