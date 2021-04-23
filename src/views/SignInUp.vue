@@ -174,10 +174,11 @@
                               <v-text-field
                                 v-model="dateOfBirth"
                                 dense
+                                error-count="2"
                                 label="Data urodzenia"
                                 prepend-inner-icon="mdi-calendar"
                                 readonly
-                                :rules="extraRules"
+                                :rules="[rules.ofAge, ...extraRules]"
                                 v-bind="attrs"
                                 v-on="on"
                               ></v-text-field>
@@ -315,37 +316,50 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 
+var dayjs = require("dayjs");
+
 export default {
-  data: () => ({
-    step: 1,
-    workerGroupItems: [
-      { text: "Pracownik stacjonarny", value: "stationary" },
-      { text: "Chałupnik", value: "cottage" }
-    ],
+  data() {
+    return {
+      step: 1,
+      workerGroupItems: [
+        { text: "Pracownik stacjonarny", value: "stationary" },
+        { text: "Chałupnik", value: "cottage" }
+      ],
 
-    // registration form
-    confirmPassword: undefined,
-    firstName: undefined,
-    lastName: undefined,
-    dateOfBirth: undefined,
+      // registration form
+      confirmPassword: undefined,
+      firstName: undefined,
+      lastName: undefined,
+      dateOfBirth: undefined,
 
-    phoneNumber: undefined,
-    address: undefined,
-    workerGroup: undefined,
-    isNew: undefined,
+      phoneNumber: undefined,
+      address: undefined,
+      workerGroup: undefined,
+      isNew: undefined,
 
-    datePicker: false,
-    emailErrorMessages: [],
-    errorMessages: {},
+      datePicker: false,
+      emailErrorMessages: [],
+      errorMessages: {},
 
-    // common form stuff
-    email: undefined,
-    password: undefined,
-    rules: {
-      required: val => !!val || "To pole jest wymagane."
-    },
-    extraRules: []
-  }),
+      // common form stuff
+      email: undefined,
+      password: undefined,
+      rules: {
+        ofAge: val => {
+          if (this.isNew || val) {
+            return (
+              dayjs().diff(dayjs(val), "years") >= 18 ||
+              "Użytkownik musi być pełnoletni."
+            );
+          }
+          return true;
+        },
+        required: val => !!val || "To pole jest wymagane."
+      },
+      extraRules: []
+    };
+  },
   computed: {
     ...mapGetters({ isAuthenticated: "isAuthenticated" }),
     credentials() {
